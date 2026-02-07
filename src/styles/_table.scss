@@ -1,0 +1,398 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// TABLE STYLES
+// ============================================================================
+
+#content-root {
+  min-height: 400px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: auto;
+}
+
+th,
+td {
+  padding: 10px $space-md;
+  border-bottom: 1px solid var(--color-glowSecondary);
+  text-align: left;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+th {
+  @include sticky-header;
+  top: 65px;
+  z-index: $z-sticky - 1;
+}
+
+tbody tr {
+  @include fade-transition;
+
+  &:hover {
+    background: var(--color-bgLight);
+    box-shadow: 0 0 15px var(--color-glowSecondary);
+  }
+
+  &.row-selected {
+    background: var(--color-glowPrimary);
+    box-shadow: inset 0 0 0 1px var(--color-primary), 0 0 12px var(--color-glowPrimary);
+  }
+}
+
+// ============================================================================
+// SORTABLE HEADERS
+// ============================================================================
+
+th[hx-post] {
+  cursor: pointer;
+  user-select: none;
+  @include fade-transition;
+
+  &:hover {
+    background: var(--color-bgLight);
+    box-shadow: inset 0 0 10px var(--color-glowSecondary);
+  }
+
+  &.active {
+    background: var(--color-bgLight);
+  }
+}
+
+th.sort-asc {
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px var(--color-secondary), 0 0 20px var(--color-glowSecondary);
+}
+
+th.sort-desc {
+  color: var(--color-primary);
+  text-shadow: 0 0 10px var(--color-primary), 0 0 20px var(--color-glowPrimary);
+}
+
+// ============================================================================
+// TABLE HEADER CONTROLS
+// ============================================================================
+
+.table-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $space-md;
+  gap: $space-md;
+  background: var(--color-bg);
+  padding: $space-sm 0;
+}
+
+.table-actions-left {
+  display: flex;
+  align-items: center;
+  gap: $space-lg;
+}
+
+.table-filters {
+  display: flex;
+  background: transparent;
+  padding: 4px;
+  border-radius: $radius-xs;
+  border: 1px solid var(--color-glowSecondary);
+  gap: 4px;
+}
+
+.filter-btn {
+  padding: $space-sm $space-lg;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-xs;
+  color: var(--color-textMuted);
+  font-family: $font-body;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  @include fade-transition;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    color: var(--color-secondary);
+    background: var(--color-bgLight);
+  }
+
+  &.active {
+    background: var(--color-bgLight);
+    color: var(--color-secondary);
+    text-shadow: 0 0 8px var(--color-glowSecondary);
+    box-shadow: inset 0 0 10px var(--color-glowSecondary);
+  }
+}
+
+.selection-count {
+  color: var(--color-secondary);
+  @include heading-style;
+  font-size: 0.9rem;
+  min-height: 20px;
+}
+
+.btn-column-settings {
+  padding: $space-sm $space-lg;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-xs;
+  color: var(--color-text);
+  font-family: $font-body;
+  font-size: 14px;
+  cursor: pointer;
+  @include fade-transition;
+
+  &:hover {
+    background: var(--color-bgLight);
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+  }
+}
+
+.select-all-header {
+  @include fade-transition;
+
+  &:hover {
+    background: var(--color-bgLight);
+    box-shadow: inset 0 0 10px var(--color-glowSecondary);
+    color: var(--color-secondary);
+  }
+
+  &:active {
+    background: var(--color-glowSecondary);
+  }
+}
+
+// ============================================================================
+// COLUMN SETTINGS PANEL
+// ============================================================================
+
+.column-settings-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-xs;
+  padding: $space-lg;
+  margin-top: $space-sm;
+  z-index: $z-dropdown;
+  min-width: 280px;
+  box-shadow: 0 8px 32px var(--color-glowPrimary);
+
+  h3 {
+    margin: 0 0 $space-md 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-secondary);
+  }
+}
+
+.column-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-sm;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    font-size: 13px;
+    cursor: pointer;
+    padding: $space-sm;
+    border-radius: $radius-xs;
+    @include fade-transition;
+
+    &:hover {
+      background: var(--color-bgLight);
+    }
+  }
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--color-secondary);
+  }
+}
+
+// ============================================================================
+// CHECKBOXES
+// ============================================================================
+
+.country-checkbox {
+  margin: 0;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  border-radius: $radius-xs;
+
+  &:hover {
+    box-shadow: 0 0 8px var(--color-glowSecondary);
+  }
+}
+
+// ============================================================================
+// FLAG COLUMN
+// ============================================================================
+
+.flag-header {
+  width: 50px;
+  text-align: center;
+  border-left: 1px solid var(--color-glowPrimary);
+}
+
+.flag-cell {
+  padding: 4px $space-sm;
+  text-align: center;
+  width: 50px;
+  border-left: 1px solid var(--color-glowPrimary);
+}
+
+.flag-svg {
+  width: 32px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--color-glowSecondary);
+  cursor: pointer;
+  @include fade-transition;
+
+  &:hover {
+    box-shadow: 0 0 8px var(--color-glowSecondary);
+  }
+}
+
+// ============================================================================
+// SELECTION INFO
+// ============================================================================
+
+.selection-info {
+  margin-top: $space-lg;
+  padding: $space-lg;
+  background: var(--color-bgLight);
+  border: 1px solid var(--color-secondary);
+  border-radius: $radius-md;
+  box-shadow: 0 0 20px var(--color-glowSecondary);
+
+  h3 {
+    margin: 0 0 $space-md 0;
+    color: var(--color-secondary);
+    @include heading-style;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 20px;
+  }
+
+  li {
+    margin: $space-sm 0;
+    color: var(--color-text);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-textMuted);
+  }
+}
+
+// ============================================================================
+// CHARTS
+// ============================================================================
+
+.chart-wrapper {
+  background: var(--color-card);
+  border-radius: $radius-md;
+  box-shadow: 0 0 30px var(--color-glowSecondary), 0 0 60px var(--color-glowPrimary);
+  padding: $space-xl;
+  border: 1px solid var(--color-secondary);
+  height: 600px;
+  overflow: hidden;
+  position: relative;
+}
+
+#chart-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.chart-controls-top {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-style-switcher {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+
+  label {
+    color: var(--color-secondary);
+    @include heading-style;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+.style-buttons {
+  display: flex;
+  gap: $space-sm;
+}
+
+.style-btn {
+  padding: $space-sm $space-md;
+  background: var(--color-bgLight);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  border-radius: $radius-xs;
+  font-family: $font-body;
+  font-size: 0.85rem;
+  cursor: pointer;
+  @include fade-transition;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  &:hover {
+    background: var(--color-bgLight);
+    box-shadow: 0 0 10px var(--color-glowSecondary);
+  }
+
+  &.active {
+    background: var(--color-secondary);
+    color: var(--color-bg);
+    box-shadow: 0 0 15px var(--color-glowSecondary);
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+
+.loading {
+  padding: $space-xl $space-md;
+  text-align: center;
+  color: var(--color-secondary);
+  @include heading-style;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.status {
+  font-size: 0.85rem;
+  color: var(--color-textDim);
+  margin-top: $space-lg;
+}

@@ -1,0 +1,184 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// LAYOUT: NAVBAR
+// ============================================================================
+
+.navbar {
+  background: rgba(20, 15, 25, 0.75);
+  @include glass-effect;
+  border-bottom: 1px solid $neon-cyan;
+  box-shadow: 0 0 20px $glow-cyan;
+  position: sticky;
+  top: 0;
+  z-index: $z-navbar;
+
+  &-container {
+    max-width: 100%;
+    margin: 0;
+    padding: $space-lg;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &-logo {
+    display: flex;
+    align-items: center;
+    gap: $space-md;
+  }
+
+  &-menu {
+    display: flex;
+    gap: $space-2xl;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.logo-text {
+  @include heading-style;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: $neon-cyan;
+  @include neon-glow($neon-cyan);
+  letter-spacing: 0.08em;
+}
+
+.nav-link {
+  color: $text-primary;
+  text-decoration: none;
+  @include body-text;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  @include fade-transition;
+  padding: $space-sm 0;
+  border-bottom: 2px solid transparent;
+
+  &:hover,
+  &.active {
+    color: $neon-cyan;
+    border-bottom-color: $neon-cyan;
+    text-shadow: 0 0 10px $neon-cyan;
+  }
+}
+
+// ============================================================================
+// LAYOUT: MAIN CONTENT
+// ============================================================================
+
+main {
+  padding: $space-xl $space-lg;
+}
+
+// ============================================================================
+// LAYOUT: FOOTER
+// ============================================================================
+
+.footer {
+  background: $surface-card;
+  border-top: 1px solid $neon-cyan;
+  box-shadow: 0 0 20px $glow-cyan;
+  padding: $space-xl $space-lg;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $neon-purple, $neon-cyan, transparent);
+    opacity: 0.5;
+  }
+
+  &-container {
+    max-width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-lg;
+  }
+
+  &-content {
+    width: 100%;
+    text-align: center;
+  }
+
+  &-text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $text-muted;
+    line-height: 1.6;
+    font-family: $font-body;
+
+    a {
+      color: $neon-cyan;
+      text-decoration: none;
+      @include fade-transition;
+      border-bottom: 1px solid transparent;
+
+      &:hover {
+        text-shadow: 0 0 10px $neon-cyan;
+        color: $text-light;
+        border-bottom-color: $neon-cyan;
+      }
+    }
+  }
+
+  &-branding {
+    width: 100%;
+    padding-top: $space-lg;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    @include flex-center;
+    gap: 0.5rem;
+    @include mono-text;
+    color: $text-dim;
+  }
+
+  &-brand-link,
+  &-hono-link {
+    color: $text-muted;
+    text-decoration: none;
+    @include fade-transition;
+  }
+
+  &-brand-link:hover {
+    color: $neon-purple;
+    text-shadow: 0 0 8px rgba($neon-purple, 0.4);
+  }
+
+  &-hono-link {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &:hover {
+      color: $neon-cyan;
+    }
+  }
+}
+
+.footer-hono-link .fire {
+  color: #ff4d00;
+  filter: drop-shadow(0 0 5px #ff4d00);
+  transition: filter 0.2s ease;
+
+  .footer-hono-link:hover & {
+    filter: drop-shadow(0 0 8px #ff4d00);
+  }
+}
+
+// ============================================================================
+// SHARED CONTAINERS
+// ============================================================================
+
+.container {
+  max-width: 100%;
+  margin: 0;
+  position: relative;
+  z-index: $z-base;
+}

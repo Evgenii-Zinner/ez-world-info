@@ -1,0 +1,51 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// BUTTONS
+// ============================================================================
+
+.btn {
+  @include button-base;
+  
+  &-primary {
+    @include button-primary;
+  }
+}
+
+// ============================================================================
+// TABLE CONTROLS
+// ============================================================================
+
+.table-controls {
+  margin-bottom: $space-lg;
+  display: flex;
+  gap: $space-md;
+}
+
+// ============================================================================
+// FORMS (Future use)
+// ============================================================================
+
+input[type="text"],
+input[type="email"],
+textarea {
+  background: $surface-dark;
+  border: 1px solid $border-base;
+  border-radius: $radius-xs;
+  padding: $space-md;
+  color: $text-primary;
+  font-family: $font-body;
+  @include fade-transition;
+  
+  &:focus {
+    outline: none;
+    border-color: $neon-cyan;
+    box-shadow: 0 0 10px rgba($neon-cyan, 0.3);
+  }
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}

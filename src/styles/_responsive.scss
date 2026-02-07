@@ -1,0 +1,85 @@
+@use 'variables' as *;
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+
+@media (max-width: 720px) {
+  body {
+    padding: $space-xl $space-lg 3 * $space-lg;
+  }
+  
+  .navbar {
+    &-menu {
+      gap: $space-lg;
+    }
+  }
+  
+  .chart-controls-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $space-md;
+  }
+  
+  .chart-style-switcher {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .style-buttons {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .style-btn {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: $space-sm;
+  }
+  
+  .tab {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .chart-wrapper {
+    height: 400px;
+    padding: $space-lg;
+  }
+  
+  th, td {
+    font-size: 0.85rem;
+    padding: 8px $space-sm;
+  }
+  
+  .column-settings-panel {
+    min-width: 240px;
+    left: 0;
+    right: auto;
+  }
+  
+  .column-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-header-controls {
+    flex-wrap: wrap;
+  }
+  
+  .selection-count {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

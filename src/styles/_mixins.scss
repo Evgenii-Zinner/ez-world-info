@@ -1,0 +1,97 @@
+@use 'variables' as *;
+
+// ============================================================================
+// MIXINS FOR COMMON PATTERNS
+// ============================================================================
+
+// Typography
+@mixin heading-style {
+  font-family: $font-display;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@mixin body-text {
+  font-family: $font-body;
+  font-size: 0.9rem;
+}
+
+@mixin mono-text {
+  font-family: $font-mono;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+// Effects
+@mixin neon-glow($color, $intensity: 10px) {
+  text-shadow: 0 0 $intensity $color, 0 0 calc($intensity * 2) rgba($color, 0.5);
+}
+
+@mixin glow-box($color, $intensity: 15px) {
+  box-shadow: 0 0 $intensity rgba($color, 0.2);
+  
+  &:hover {
+    box-shadow: 0 0 calc($intensity * 1.5) rgba($color, 0.4);
+  }
+}
+
+@mixin glass-effect {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@mixin fade-transition {
+  transition: all 0.2s ease;
+}
+
+// Button styles
+@mixin button-base {
+  padding: $space-md $space-lg;
+  border: none;
+  border-radius: $radius-xs;
+  font-family: $font-body;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  @include fade-transition;
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $neon-purple;
+  color: $color-white;
+  box-shadow: 0 0 15px rgba($neon-purple, 0.3);
+  
+  &:hover {
+    box-shadow: 0 0 25px rgba($neon-purple, 0.6);
+    transform: translateY(-2px);
+  }
+}
+
+// Layout helpers
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin sticky-header {
+  position: sticky;
+  background: $surface-card;
+  @include glass-effect;
+  font-weight: 600;
+  color: $neon-cyan;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  @include neon-glow($neon-cyan, 10px);
+  border-bottom: 2px solid $neon-cyan;
+  z-index: $z-table-header;
+}
+
+// Responsive utilities
+@mixin max-width($size) {
+  @media (max-width: $size) {
+    @content;
+  }
+}

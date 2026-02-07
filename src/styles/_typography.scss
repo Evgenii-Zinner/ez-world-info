@@ -1,0 +1,79 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+header {
+  margin-bottom: $space-xl;
+}
+
+h1 {
+  margin: 0 0 $space-sm;
+  font-size: clamp(1.75rem, 2vw + 1.2rem, 2.6rem);
+  @include heading-style;
+  color: $neon-purple;
+  text-shadow: 0 0 16px $glow-purple;
+  animation: title-flicker 4s infinite;
+}
+
+@keyframes title-flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 0.88; }
+  48% { opacity: 0.98; }
+  52% { opacity: 0.8; }
+  60% { opacity: 1; }
+}
+
+.meta {
+  color: $text-muted;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+// ============================================================================
+// TAB NAVIGATION
+// ============================================================================
+
+.tabs {
+  display: flex;
+  gap: $space-md;
+  margin-bottom: $space-xl;
+  border-bottom: 2px solid rgba($neon-cyan, 0.2);
+  padding-bottom: $space-sm;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid rgba($neon-cyan, 0.3);
+  color: $text-primary;
+  padding: $space-md 2 * $space-lg;
+  cursor: pointer;
+  @include heading-style;
+  font-size: 0.9rem;
+  border-radius: $radius-xs;
+  @include fade-transition;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  text-decoration: none;
+  
+  &:hover {
+    border-color: $neon-cyan;
+    background: rgba($neon-cyan, 0.05);
+    box-shadow: 0 0 15px rgba($neon-cyan, 0.2);
+  }
+  
+  &.active {
+    background: rgba($neon-cyan, 0.15);
+    border-color: $neon-cyan;
+    color: $neon-cyan;
+    text-shadow: 0 0 10px $neon-cyan;
+    box-shadow: 0 0 20px rgba($neon-cyan, 0.3);
+  }
+  
+  &-icon {
+    font-size: 1.1rem;
+  }
+}

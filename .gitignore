@@ -1,0 +1,17 @@
+node_modules/
+.wrangler/
+dist/
+*.local
+
+# Generated data files (fetched during build)
+public/countries.json
+public/gdp.json
+public/wikidata.json
+public/indicators.json
+public/territories.json
+
+# Generated styles
+public/styles.css
+public/styles.css.map
+
+PROGRESS.md

@@ -1,0 +1,111 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// LIGHT THEME OVERRIDES
+// ============================================================================
+
+:root {
+  color-scheme: dark;
+  --color-primary: #{$neon-purple};
+  --color-secondary: #{$neon-cyan};
+  --color-accent: #{$neon-green};
+  --color-bg: #{$surface-bg};
+  --color-bgLight: #{$surface-light};
+  --color-card: #{$surface-card};
+  --color-text: #{$text-primary};
+  --color-textMuted: #{$text-muted};
+  --color-textDim: #{$text-dim};
+  --color-border: #{$border-base};
+  --color-glowPrimary: #{$glow-purple};
+  --color-glowSecondary: #{$glow-cyan};
+}
+
+.theme-light {
+  color-scheme: light;
+
+  // Override all color variables for light theme
+  --color-primary: #{$light-neon-primary};
+  --color-secondary: #{$light-neon-cyan};
+  --color-accent: #{$light-neon-accent};
+  --color-bg: #{$light-surface-bg};
+  --color-bgDark: #{$light-surface-dark};
+  --color-bgLight: #{$light-surface-light};
+  --color-card: #{$light-surface-card};
+  --color-text: #{$light-text-primary};
+  --color-textLight: #{$light-text-light};
+  --color-textMuted: #{$light-text-muted};
+  --color-textDim: #{$light-text-dim};
+  --color-border: #{$light-border-base};
+  --color-borderDark: #{$light-border-dark};
+  --color-glowPrimary: #{$light-glow-primary};
+  --color-glowSecondary: #{$light-glow-secondary};
+  --color-error: #{$color-error};
+  --color-magenta: #{$color-magenta};
+
+  // Target body element for background and text
+  body {
+    background: $light-surface-bg;
+    color: $light-text-primary;
+  }
+
+  // Update all component colors
+  .navbar {
+    background: $light-surface-card;
+    border-bottom-color: $light-neon-secondary;
+    box-shadow: 0 0 20px rgba($light-neon-secondary, 0.1);
+  }
+
+  .logo-text {
+    color: $light-neon-secondary;
+    text-shadow: 0 0 10px rgba($light-neon-secondary, 0.3);
+  }
+
+  .nav-link {
+    color: $light-text-primary;
+
+    &:hover {
+      color: $light-neon-secondary;
+      text-shadow: 0 0 10px rgba($light-neon-secondary, 0.2);
+    }
+  }
+
+  .footer {
+    background: $light-surface-card;
+    border-top-color: $light-neon-secondary;
+    box-shadow: 0 0 20px rgba($light-neon-secondary, 0.1);
+  }
+
+  th {
+    color: $light-neon-cyan;
+    background: $light-surface-card;
+    text-shadow: 0 0 10px rgba($light-neon-cyan, 0.3);
+    border-bottom-color: $light-neon-cyan;
+  }
+
+  .tab {
+    color: $light-text-primary;
+    border-color: rgba($light-neon-secondary, 0.3);
+
+    &:hover {
+      border-color: $light-neon-secondary;
+      background: rgba($light-neon-secondary, 0.05);
+    }
+
+    &.active {
+      background: rgba($light-neon-secondary, 0.15);
+      color: $light-neon-secondary;
+      text-shadow: 0 0 10px rgba($light-neon-secondary, 0.2);
+    }
+  }
+
+  .chart-wrapper {
+    background: $light-surface-card;
+    border-color: $light-neon-secondary;
+  }
+
+  .selection-info {
+    background: rgba($light-neon-secondary, 0.1);
+    border-color: $light-neon-secondary;
+  }
+}

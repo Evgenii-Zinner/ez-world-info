@@ -1,0 +1,97 @@
+// ============================================================================
+// SEMANTIC COLOR TOKENS
+// ============================================================================
+
+// Neon palette - "Tactical Cyberpunk"
+$neon-purple: #bc13fe;
+$neon-cyan: #00f3ff;
+$neon-green: #00ff41;
+
+// Surfaces
+$surface-bg: #050308;
+$surface-dark: #0a050f;
+$surface-light: rgba(255, 255, 255, 0.03);
+$surface-card: rgba(20, 15, 25, 0.95);
+
+// Text
+$text-primary: #ccc;
+$text-light: #fff;
+$text-muted: #888;
+$text-dim: #555;
+
+// Borders
+$border-base: #444;
+$border-dark: #333;
+$border-darker: #222;
+
+// Semantic glows
+$glow-purple: rgba(188, 19, 254, 0.1);
+$glow-cyan: rgba(0, 243, 255, 0.1);
+
+// Utilities
+$color-black: #000;
+$color-white: #fff;
+$color-error: #ff4d4d;
+$color-magenta: #ff00ff;
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+$font-display: "Orbitron", sans-serif; // Headings
+$font-body: "Chakra Petch", sans-serif; // Body text
+$font-mono: "JetBrains Mono", "Fira Code", monospace; // Code
+
+// ============================================================================
+// SPACING
+// ============================================================================
+
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 12px;
+$space-lg: 16px;
+$space-xl: 24px;
+$space-2xl: 32px;
+
+// ============================================================================
+// BORDER RADIUS
+// ============================================================================
+
+$radius-xs: 4px;
+$radius-md: 16px;
+$radius-full: 9999px;
+
+// ============================================================================
+// Z-INDEX STACK
+// ============================================================================
+
+$z-background: -1;
+$z-base: 1;
+$z-table-header: 10;
+$z-sticky: 50;
+$z-navbar: 100;
+$z-dropdown: 1000;
+
+// ============================================================================
+// LIGHT THEME OVERRIDES
+// ============================================================================
+
+$light-neon-primary: #0055ff;
+$light-neon-secondary: #7000ff;
+$light-neon-accent: #007399;
+$light-neon-cyan: #008b99; // Darker cyan for better readability on white
+
+$light-surface-bg: #ffffff;
+$light-surface-dark: #f2f2f7;
+$light-surface-light: rgba(0, 85, 255, 0.05);
+$light-surface-card: rgba(255, 255, 255, 0.25);
+
+$light-text-primary: #1c1c1e;
+$light-text-light: #000000;
+$light-text-muted: #8e8e93;
+$light-text-dim: #c7c7cc;
+
+$light-border-base: rgba(0, 0, 0, 0.08);
+$light-border-dark: rgba(0, 0, 0, 0.15);
+$light-glow-primary: rgba(0, 85, 255, 0.3);
+$light-glow-secondary: rgba(112, 0, 255, 0.3);
