@@ -13,6 +13,6 @@ describe("Security Headers", () => {
     const csp = res.headers.get("Content-Security-Policy");
     expect(csp).toBeDefined();
     expect(csp).toContain("default-src 'self'");
-    expect(csp).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+    expect(csp).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com");
   });
 });
