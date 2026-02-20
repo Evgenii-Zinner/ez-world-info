@@ -247,6 +247,7 @@ export function renderTable({
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              setTimeout(() => URL.revokeObjectURL(url), 100);
             }
           }));
         };
@@ -279,11 +280,11 @@ export function renderTable({
           <div class="selection-count" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'"></div>
         </div>
         
-        <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center;">
-             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit;">
+        <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
+             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
-            <button class="btn-column-settings" @click="exportCSV()">⬇️ Export CSV</button>
-            <button class="btn-column-settings" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
             <div x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
                 <div class="column-settings-content">
