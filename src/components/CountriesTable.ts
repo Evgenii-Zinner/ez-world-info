@@ -203,7 +203,7 @@ export function renderTable({
               const escape = (val) => {
                 if (val === null || val === undefined) return '';
                 const str = String(val);
-                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                if (str.includes(',') || str.includes('"') || str.includes('\\n')) {
                   return '"' + str.replace(/"/g, '""') + '"';
                 }
                 return str;
@@ -236,7 +236,7 @@ export function renderTable({
                   escape(row.urbanPopulation),
                   escape(getStatus(row))
                 ].join(','))
-              ].join('\n');
+              ].join('\\n');
 
               const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
               const url = URL.createObjectURL(blob);
@@ -282,7 +282,7 @@ export function renderTable({
         <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center;">
              <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit;">
 
-            <button class="btn-export" @click="exportCSV()" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; cursor: pointer;">⬇️ Export CSV</button>
+            <button class="btn-column-settings" @click="exportCSV()">⬇️ Export CSV</button>
             <button class="btn-column-settings" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
             <div x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
