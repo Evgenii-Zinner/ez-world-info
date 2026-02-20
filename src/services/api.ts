@@ -1,4 +1,4 @@
-import type { Env, CountryEntry, GdpEntry, CountryRow } from "../types";
+import type { Env, CountryEntry, GdpEntry, CountryRow, RawCountry, RawGdpData } from "../types";
 import countriesData from "../../public/countries.json";
 import gdpData from "../../public/gdp.json";
 import territoriesMapping from "../../public/territories.json";
@@ -79,20 +79,15 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
 }
 
 // Data is static, embedded as assets
-export async function loadCountriesData(): Promise<string> {
-  return JSON.stringify(countriesData);
+export async function loadCountriesData(): Promise<RawCountry[]> {
+  return countriesData as RawCountry[];
 }
 
-export async function loadGdpData(): Promise<string> {
-  return JSON.stringify(gdpData);
+export async function loadGdpData(): Promise<RawGdpData> {
+  return gdpData as unknown as RawGdpData;
 }
 
-export function parseCountries(raw: string): CountryEntry[] {
-  const parsed = JSON.parse(raw) as Array<{
-    cca3?: string;
-    name?: { common?: string };
-  }>;
-
+export function parseCountries(parsed: RawCountry[]): CountryEntry[] {
   return parsed
     .filter((country) => country.cca3 && country.name?.common && !EXCLUDED_CODES.has(country.cca3))
     .map((country) => ({
@@ -103,18 +98,9 @@ export function parseCountries(raw: string): CountryEntry[] {
 }
 
 export function parseGdpData(
-  raw: string,
+  parsed: RawGdpData,
   allowedCodes?: Set<string>
 ): Map<string, GdpEntry> {
-  const parsed = JSON.parse(raw) as [
-    unknown,
-    Array<{
-      country?: { id?: string; value?: string };
-      countryiso3code?: string;
-      value?: number;
-      date?: string;
-    }>
-  ];
   const entries =
     Array.isArray(parsed) && Array.isArray(parsed[1]) ? parsed[1] : [];
   const map = new Map<string, GdpEntry>();
@@ -147,32 +133,17 @@ export function parseGdpData(
 export function buildRows(
   countries: CountryEntry[],
   gdpMap: Map<string, GdpEntry>,
-  countriesRaw?: string,
+  countriesRaw?: RawCountry[],
   exchangeRates?: Record<string, number>
 ): CountryRow[] {
   // Parse full country data if provided
-  let countryDetailsMap = new Map<string, any>();
+  let countryDetailsMap = new Map<string, RawCountry>();
   if (countriesRaw) {
-    try {
-      const parsed = JSON.parse(countriesRaw) as Array<{
-        cca3?: string;
-        languages?: Record<string, string>;
-        currencies?: Record<string, { name: string; symbol: string }>;
-        area?: number;
-        population?: number;
-        gini?: Record<string, number>;
-        flags?: { svg?: string };
-        independent?: boolean;
-        unMember?: boolean;
-      }>;
-      parsed.forEach((country) => {
-        if (country.cca3) {
-          countryDetailsMap.set(country.cca3, country);
-        }
-      });
-    } catch {
-      // If parsing fails, continue without extra details
-    }
+    countriesRaw.forEach((country) => {
+      if (country.cca3) {
+        countryDetailsMap.set(country.cca3, country);
+      }
+    });
   }
 
   const rows = countries.map((country) => {
@@ -252,4 +223,3 @@ export function buildRows(
 // sortRows is now imported from utils/sorting.ts
 // Export it for backwards compatibility
 export { sortRows } from "../utils/sorting";
-
