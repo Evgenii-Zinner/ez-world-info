@@ -188,6 +188,66 @@ export function renderTable({
             formatRate(val) {
               if (val === null || val === undefined) return '...'; 
               return val.toFixed(2);
+            },
+
+            exportCSV() {
+              const rows = this.filteredRows;
+              if (!rows || rows.length === 0) return;
+
+              const headers = [
+                'Country', 'Code', 'Population', 'Area (km²)', 'Currency Rate (USD)',
+                'Official Language', 'GDP per Capita', 'GDP Total', 'Gini',
+                'Internet Users %', 'Urban Pop %', 'Status'
+              ];
+
+              const escape = (val) => {
+                if (val === null || val === undefined) return '';
+                const str = String(val);
+                if (str.includes(',') || str.includes('"') || str.includes('\\n')) {
+                  return '"' + str.replace(/"/g, '""') + '"';
+                }
+                return str;
+              };
+
+              const getLanguage = (row) => {
+                if (row.languages && Object.keys(row.languages).length > 0) {
+                  return Object.values(row.languages).slice(0, 2).join(', ');
+                }
+                return row.officialLanguage || '';
+              };
+
+              const getStatus = (row) => {
+                return row.parentCountry || (row.independent ? 'Independent' : 'Dependent');
+              };
+
+              const csvContent = [
+                headers.join(','),
+                ...rows.map(row => [
+                  escape(row.name),
+                  escape(row.code),
+                  escape(row.population),
+                  escape(row.area),
+                  escape(row.currencyRate),
+                  escape(getLanguage(row)),
+                  escape(row.gdpPerCapita),
+                  escape(row.gdpTotal),
+                  escape(row.gini),
+                  escape(row.internetUsers),
+                  escape(row.urbanPopulation),
+                  escape(getStatus(row))
+                ].join(','))
+              ].join('\\n');
+
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.setAttribute("href", url);
+              link.setAttribute("download", 'world_data_export_' + new Date().toISOString().slice(0,10) + '.csv');
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              setTimeout(() => URL.revokeObjectURL(url), 100);
             }
           }));
         };
@@ -220,10 +280,11 @@ export function renderTable({
           <div class="selection-count" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'"></div>
         </div>
         
-        <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center;">
-             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit;">
+        <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
+             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
-            <button class="btn-column-settings" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
             <div x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
                 <div class="column-settings-content">
