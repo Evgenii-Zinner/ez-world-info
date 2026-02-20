@@ -326,21 +326,161 @@ export function renderTable({
       <table x-show="!isLoading">
         <thead>
           <tr>
-            <th class="select-all-header" @click="toggleSelectAll()" style="cursor: pointer; user-select: none;">✓</th>
+            <th
+              class="select-all-header"
+              @click="toggleSelectAll()"
+              @keydown.enter.prevent="toggleSelectAll()"
+              @keydown.space.prevent="toggleSelectAll()"
+              tabindex="0"
+              aria-label="Select all rows"
+              scope="col"
+              style="cursor: pointer; user-select: none;">✓</th>
             
-            <th @click="sort('name')" :class="{'active': sortBy === 'name', 'sort-asc': sortBy === 'name' && sortOrder === 'asc', 'sort-desc': sortBy === 'name' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-country')" style="cursor: pointer;">Country</th>
-            <th @click="sort('code')" :class="{'active': sortBy === 'code', 'sort-asc': sortBy === 'code' && sortOrder === 'asc', 'sort-desc': sortBy === 'code' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-code')" style="cursor: pointer;">Code</th>
-            <th @click="sort('population')" :class="{'active': sortBy === 'population', 'sort-asc': sortBy === 'population' && sortOrder === 'asc', 'sort-desc': sortBy === 'population' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-population')" style="cursor: pointer;">Population</th>
-            <th @click="sort('area')" :class="{'active': sortBy === 'area', 'sort-asc': sortBy === 'area' && sortOrder === 'asc', 'sort-desc': sortBy === 'area' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-area')" style="cursor: pointer;">Area (km²)</th>
-            <th @click="sort('currencyRate')" :class="{'active': sortBy === 'currencyRate', 'sort-asc': sortBy === 'currencyRate' && sortOrder === 'asc', 'sort-desc': sortBy === 'currencyRate' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-currencies')" style="cursor: pointer;">1 USD =</th>
-            <th @click="sort('officialLanguage')" :class="{'active': sortBy === 'officialLanguage', 'sort-asc': sortBy === 'officialLanguage' && sortOrder === 'asc', 'sort-desc': sortBy === 'officialLanguage' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-language')" style="cursor: pointer;">Official Language</th>
-            <th @click="sort('gdpPerCapita')" :class="{'active': sortBy === 'gdpPerCapita', 'sort-asc': sortBy === 'gdpPerCapita' && sortOrder === 'asc', 'sort-desc': sortBy === 'gdpPerCapita' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-gdp')" style="cursor: pointer;">GDP per Capita</th>
-            <th @click="sort('gdpTotal')" :class="{'active': sortBy === 'gdpTotal', 'sort-asc': sortBy === 'gdpTotal' && sortOrder === 'asc', 'sort-desc': sortBy === 'gdpTotal' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-gdp-total')" style="cursor: pointer;">GDP Total</th>
-            <th @click="sort('gini')" :class="{'active': sortBy === 'gini', 'sort-asc': sortBy === 'gini' && sortOrder === 'asc', 'sort-desc': sortBy === 'gini' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-gini')" style="cursor: pointer;">Gini</th>
-            <th @click="sort('internetUsers')" :class="{'active': sortBy === 'internetUsers', 'sort-asc': sortBy === 'internetUsers' && sortOrder === 'asc', 'sort-desc': sortBy === 'internetUsers' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-internet')" style="cursor: pointer;">Internet Users %</th>
-            <th @click="sort('urbanPopulation')" :class="{'active': sortBy === 'urbanPopulation', 'sort-asc': sortBy === 'urbanPopulation' && sortOrder === 'asc', 'sort-desc': sortBy === 'urbanPopulation' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-urban')" style="cursor: pointer;">Urban Pop %</th>
-            <th @click="sort('status')" :class="{'active': sortBy === 'status', 'sort-asc': sortBy === 'status' && sortOrder === 'asc', 'sort-desc': sortBy === 'status' && sortOrder === 'desc'}" x-show="!hiddenColumns.includes('col-status')" style="cursor: pointer;">Status</th>
-            <th x-show="!hiddenColumns.includes('col-flag')" class="flag-header">Flag</th>
+            <th
+              class="sortable-header"
+              @click="sort('name')"
+              @keydown.enter.prevent="sort('name')"
+              @keydown.space.prevent="sort('name')"
+              :aria-sort="sortBy === 'name' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'name', 'sort-asc': sortBy === 'name' && sortOrder === 'asc', 'sort-desc': sortBy === 'name' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-country')"
+              style="cursor: pointer;">Country</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('code')"
+              @keydown.enter.prevent="sort('code')"
+              @keydown.space.prevent="sort('code')"
+              :aria-sort="sortBy === 'code' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'code', 'sort-asc': sortBy === 'code' && sortOrder === 'asc', 'sort-desc': sortBy === 'code' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-code')"
+              style="cursor: pointer;">Code</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('population')"
+              @keydown.enter.prevent="sort('population')"
+              @keydown.space.prevent="sort('population')"
+              :aria-sort="sortBy === 'population' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'population', 'sort-asc': sortBy === 'population' && sortOrder === 'asc', 'sort-desc': sortBy === 'population' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-population')"
+              style="cursor: pointer;">Population</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('area')"
+              @keydown.enter.prevent="sort('area')"
+              @keydown.space.prevent="sort('area')"
+              :aria-sort="sortBy === 'area' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'area', 'sort-asc': sortBy === 'area' && sortOrder === 'asc', 'sort-desc': sortBy === 'area' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-area')"
+              style="cursor: pointer;">Area (km²)</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('currencyRate')"
+              @keydown.enter.prevent="sort('currencyRate')"
+              @keydown.space.prevent="sort('currencyRate')"
+              :aria-sort="sortBy === 'currencyRate' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'currencyRate', 'sort-asc': sortBy === 'currencyRate' && sortOrder === 'asc', 'sort-desc': sortBy === 'currencyRate' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-currencies')"
+              style="cursor: pointer;">1 USD =</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('officialLanguage')"
+              @keydown.enter.prevent="sort('officialLanguage')"
+              @keydown.space.prevent="sort('officialLanguage')"
+              :aria-sort="sortBy === 'officialLanguage' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'officialLanguage', 'sort-asc': sortBy === 'officialLanguage' && sortOrder === 'asc', 'sort-desc': sortBy === 'officialLanguage' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-language')"
+              style="cursor: pointer;">Official Language</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('gdpPerCapita')"
+              @keydown.enter.prevent="sort('gdpPerCapita')"
+              @keydown.space.prevent="sort('gdpPerCapita')"
+              :aria-sort="sortBy === 'gdpPerCapita' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'gdpPerCapita', 'sort-asc': sortBy === 'gdpPerCapita' && sortOrder === 'asc', 'sort-desc': sortBy === 'gdpPerCapita' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-gdp')"
+              style="cursor: pointer;">GDP per Capita</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('gdpTotal')"
+              @keydown.enter.prevent="sort('gdpTotal')"
+              @keydown.space.prevent="sort('gdpTotal')"
+              :aria-sort="sortBy === 'gdpTotal' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'gdpTotal', 'sort-asc': sortBy === 'gdpTotal' && sortOrder === 'asc', 'sort-desc': sortBy === 'gdpTotal' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-gdp-total')"
+              style="cursor: pointer;">GDP Total</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('gini')"
+              @keydown.enter.prevent="sort('gini')"
+              @keydown.space.prevent="sort('gini')"
+              :aria-sort="sortBy === 'gini' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'gini', 'sort-asc': sortBy === 'gini' && sortOrder === 'asc', 'sort-desc': sortBy === 'gini' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-gini')"
+              style="cursor: pointer;">Gini</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('internetUsers')"
+              @keydown.enter.prevent="sort('internetUsers')"
+              @keydown.space.prevent="sort('internetUsers')"
+              :aria-sort="sortBy === 'internetUsers' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'internetUsers', 'sort-asc': sortBy === 'internetUsers' && sortOrder === 'asc', 'sort-desc': sortBy === 'internetUsers' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-internet')"
+              style="cursor: pointer;">Internet Users %</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('urbanPopulation')"
+              @keydown.enter.prevent="sort('urbanPopulation')"
+              @keydown.space.prevent="sort('urbanPopulation')"
+              :aria-sort="sortBy === 'urbanPopulation' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'urbanPopulation', 'sort-asc': sortBy === 'urbanPopulation' && sortOrder === 'asc', 'sort-desc': sortBy === 'urbanPopulation' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-urban')"
+              style="cursor: pointer;">Urban Pop %</th>
+
+            <th
+              class="sortable-header"
+              @click="sort('status')"
+              @keydown.enter.prevent="sort('status')"
+              @keydown.space.prevent="sort('status')"
+              :aria-sort="sortBy === 'status' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
+              tabindex="0"
+              scope="col"
+              :class="{'active': sortBy === 'status', 'sort-asc': sortBy === 'status' && sortOrder === 'asc', 'sort-desc': sortBy === 'status' && sortOrder === 'desc'}"
+              x-show="!hiddenColumns.includes('col-status')"
+              style="cursor: pointer;">Status</th>
+
+            <th x-show="!hiddenColumns.includes('col-flag')" class="flag-header" scope="col">Flag</th>
           </tr>
         </thead>
         <tbody>
