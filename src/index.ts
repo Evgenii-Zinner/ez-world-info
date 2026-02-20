@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { secureHeaders } from "hono/secure-headers";
 import { html, raw } from "hono/html";
 import type { Env } from "./types";
 import { Layout } from "./utils/layout";
@@ -17,6 +18,25 @@ import {
 } from "./services/api";
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use(
+  "*",
+  secureHeaders({
+    strictTransportSecurity: "max-age=63072000; includeSubDomains; preload",
+    xFrameOptions: "DENY",
+    xXssProtection: "1; mode=block",
+    xContentTypeOptions: "nosniff",
+    referrerPolicy: "strict-origin-when-cross-origin",
+    contentSecurityPolicy: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "https:"]
+    },
+  })
+);
 
 app.get("/", async (c) => {
   const tab = c.req.query("tab") || "table";
