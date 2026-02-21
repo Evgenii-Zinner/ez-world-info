@@ -18,7 +18,10 @@ export function renderTable({
 }: TableProps): string {
   // If rows are provided server-side (e.g. for HTMX partials), use them.
   // Otherwise, default to empty array and let Alpine fetch.
-  const initialRowsJson = JSON.stringify(rows).replace(/"/g, "&quot;");
+
+  // Safe JSON injection using script tag to prevent XSS in HTML attributes
+  const safeJson = JSON.stringify(rows).replace(/<\/script/g, '<\\/script');
+  const dataId = 'data-' + Math.random().toString(36).substr(2, 9);
   const hasInitialData = rows.length > 0;
 
   return `
@@ -27,8 +30,8 @@ export function renderTable({
         const registerComponent = () => {
           if (Alpine.data('countriesTable')) return;
 
-          Alpine.data('countriesTable', (initialData, hasServerData) => ({
-            allRows: initialData,
+          Alpine.data('countriesTable', (initialDataOrId, hasServerData) => ({
+            allRows: [], // Initialize empty
             isLoading: !hasServerData,
             filter: 'all',
             sortBy: 'name',
@@ -39,6 +42,21 @@ export function renderTable({
             showColumnSettings: false,
 
             async init() {
+              // Initialize data safely
+              if (typeof initialDataOrId === 'string') {
+                const el = document.getElementById(initialDataOrId);
+                if (el) {
+                  try {
+                    this.allRows = JSON.parse(el.textContent);
+                  } catch(e) {
+                    console.error('Failed to parse initial data', e);
+                  }
+                }
+              } else {
+                 // Legacy or direct array support
+                 this.allRows = initialDataOrId || [];
+              }
+
               // Check URL for filter param
               const params = new URLSearchParams(window.location.search);
               if (params.get('filter') === 'selected') {
@@ -260,7 +278,8 @@ export function renderTable({
       })();
     </script>
 
-    <div x-data="countriesTable(${initialRowsJson}, ${hasInitialData})" class="table-container">
+    <script id="${dataId}" type="application/json">${safeJson}</script>
+    <div x-data="countriesTable('${dataId}', ${hasInitialData})" class="table-container">
 
       ${showControls ? `
       <div class="table-header-controls">

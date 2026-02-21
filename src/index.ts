@@ -24,7 +24,6 @@ app.use(
   secureHeaders({
     strictTransportSecurity: "max-age=63072000; includeSubDomains; preload",
     xFrameOptions: "DENY",
-    xXssProtection: "1; mode=block",
     xContentTypeOptions: "nosniff",
     referrerPolicy: "strict-origin-when-cross-origin",
     contentSecurityPolicy: {
@@ -177,6 +176,11 @@ app.get("/chart-data", async (c) => {
   return c.json(chartRows);
 });
 
-app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
+app.all("*", async (c) => {
+  const res = await c.env.ASSETS.fetch(c.req.raw);
+  // Clone response to allow header modification by secureHeaders middleware
+  const newRes = new Response(res.body, res);
+  return newRes;
+});
 
 export default app;
