@@ -233,8 +233,8 @@ async function fetchData() {
     console.log("   - public/wikidata.json");
     console.log("   - public/indicators.json");
   } catch (error) {
-    console.error("❌ Failed to fetch data (continuing with existing data):", error);
-    // Don't fail the build if data fetch fails - use existing/dummy data
+    console.error("❌ Failed to fetch data:", error);
+    process.exit(1);
   }
 }
 
