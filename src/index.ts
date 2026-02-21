@@ -176,6 +176,11 @@ app.get("/chart-data", async (c) => {
   return c.json(chartRows);
 });
 
-app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
+app.all("*", async (c) => {
+  const res = await c.env.ASSETS.fetch(c.req.raw);
+  // Clone response to allow header modification by secureHeaders middleware
+  const newRes = new Response(res.body, res);
+  return newRes;
+});
 
 export default app;
