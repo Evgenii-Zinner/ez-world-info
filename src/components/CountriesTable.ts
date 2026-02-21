@@ -270,21 +270,23 @@ export function renderTable({
               class="filter-btn" 
               :class="{ 'active': filter === 'all' }" 
               @click="filter = 'all'"
+              :aria-pressed="filter === 'all'"
             >All</button>
             <button 
               class="filter-btn" 
               :class="{ 'active': filter === 'selected' }" 
               @click="filter = 'selected'"
+              :aria-pressed="filter === 'selected'"
             >Selected</button>
           </div>
-          <div class="selection-count" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'"></div>
+          <div class="selection-count" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'" aria-live="polite"></div>
         </div>
         
         <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
-             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
+             <input type="text" x-model="search" placeholder="Search..." class="search-input" aria-label="Search countries" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
-            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="showColumnSettings = !showColumnSettings" :aria-expanded="showColumnSettings">⚙️ Columns</button>
             
             <div x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
                 <div class="column-settings-content">
@@ -493,6 +495,7 @@ export function renderTable({
                     class="country-checkbox"
                     :checked="selected.includes(row.code)"
                     @change="toggleSelection(row.code)"
+                    :aria-label="'Select ' + row.name"
                     />
                 </td>
                 <td x-text="row.name" x-show="!hiddenColumns.includes('col-country')"></td>
