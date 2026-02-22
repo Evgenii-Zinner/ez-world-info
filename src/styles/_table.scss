@@ -402,3 +402,60 @@ th.sort-desc {
   color: var(--color-textDim);
   margin-top: $space-lg;
 }
+// ============================================================================
+// PAGINATION
+// ============================================================================
+
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-md 0;
+  border-top: 1px solid var(--color-glowSecondary);
+  margin-top: $space-md;
+}
+
+.pagination-info {
+  color: var(--color-textMuted);
+  font-size: 0.9rem;
+
+  span {
+    color: var(--color-text);
+  }
+}
+
+.pagination-controls {
+  display: flex;
+  gap: $space-md;
+  align-items: center;
+
+  select {
+    padding: $space-xs;
+    background: var(--color-bgLight);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-xs;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  button {
+    padding: $space-xs $space-md;
+    cursor: pointer;
+    background: var(--color-bgLight);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: $radius-xs;
+    @include fade-transition;
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-secondary);
+      color: var(--color-secondary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

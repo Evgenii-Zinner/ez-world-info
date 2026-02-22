@@ -41,7 +41,16 @@ export function renderTable({
             hiddenColumns: Alpine.$persist(['col-code', 'col-gdp-total', 'col-gini', 'col-internet', 'col-urban']).as('hiddenColumns'),
             showColumnSettings: false,
 
+            // Pagination
+            currentPage: 1,
+            pageSize: 15,
+            pageSizeOptions: [10, 15, 25, 50, 100],
+
             async init() {
+              this.$watch('search', () => this.currentPage = 1);
+              this.$watch('filter', () => this.currentPage = 1);
+              this.$watch('pageSize', () => this.currentPage = 1);
+
               // Initialize data safely
               if (typeof initialDataOrId === 'string') {
                 const el = document.getElementById(initialDataOrId);
@@ -139,6 +148,24 @@ export function renderTable({
               return result;
             },
 
+            get totalPages() {
+              return Math.ceil(this.filteredRows.length / this.pageSize);
+            },
+
+            get paginatedRows() {
+              const start = (this.currentPage - 1) * this.pageSize;
+              const end = start + this.pageSize;
+              return this.filteredRows.slice(start, end);
+            },
+
+            nextPage() {
+              if (this.currentPage < this.totalPages) this.currentPage++;
+            },
+
+            prevPage() {
+              if (this.currentPage > 1) this.currentPage--;
+            },
+
             toggleSelection(code) {
               if (this.selected.includes(code)) {
                 this.selected = this.selected.filter(c => c !== code);
@@ -162,6 +189,7 @@ export function renderTable({
             },
 
             sort(key) {
+              this.currentPage = 1;
               if (this.sortBy === key) {
                 if (this.sortOrder === 'asc') {
                   this.sortOrder = 'desc';
@@ -503,7 +531,7 @@ export function renderTable({
           </tr>
         </thead>
         <tbody>
-           <template x-for="row in filteredRows" :key="row.code">
+           <template x-for="row in paginatedRows" :key="row.code">
             <tr :class="{'row-selected': selected.includes(row.code)}" :data-country="row.code">
                 <td>
                     <input 
@@ -558,5 +586,30 @@ export function renderTable({
            </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Controls -->
+      <div class="table-pagination" x-show="!isLoading && filteredRows.length > 0">
+         <div class="pagination-info">
+            Showing <span x-text="(currentPage - 1) * pageSize + 1"></span> to <span x-text="Math.min(currentPage * pageSize, filteredRows.length)"></span> of <span x-text="filteredRows.length"></span> entries
+         </div>
+
+         <div class="pagination-controls">
+            <select x-model.number="pageSize">
+               <template x-for="size in pageSizeOptions">
+                  <option :value="size" x-text="size + ' per page'"></option>
+               </template>
+            </select>
+
+            <button @click="prevPage()" :disabled="currentPage === 1">
+               Previous
+            </button>
+
+            <span class="pagination-info">Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span></span>
+
+            <button @click="nextPage()" :disabled="currentPage === totalPages">
+               Next
+            </button>
+         </div>
+      </div>
     </div>`;
 }
