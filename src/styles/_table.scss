@@ -403,59 +403,51 @@ th.sort-desc {
   margin-top: $space-lg;
 }
 // ============================================================================
-// PAGINATION
+// COPY TO CLIPBOARD
 // ============================================================================
 
-.table-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: $space-md 0;
-  border-top: 1px solid var(--color-glowSecondary);
-  margin-top: $space-md;
-}
+.code-cell {
+  position: relative;
+  cursor: pointer;
 
-.pagination-info {
-  color: var(--color-textMuted);
-  font-size: 0.9rem;
+  &:hover {
+    color: var(--color-secondary);
+    text-shadow: 0 0 8px var(--color-glowSecondary);
 
-  span {
-    color: var(--color-text);
+    &::after {
+      content: "📋";
+      margin-left: 8px;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
   }
 }
 
-.pagination-controls {
-  display: flex;
-  gap: $space-md;
-  align-items: center;
+.copy-feedback {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  margin-left: 8px;
+  pointer-events: none;
+  font-weight: bold;
+  box-shadow: 0 2px 8px var(--color-glowSecondary);
+  z-index: 10;
 
-  select {
-    padding: $space-xs;
-    background: var(--color-bgLight);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    border-radius: $radius-xs;
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  button {
-    padding: $space-xs $space-md;
-    cursor: pointer;
-    background: var(--color-bgLight);
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    border-radius: $radius-xs;
-    @include fade-transition;
-
-    &:hover:not(:disabled) {
-      border-color: var(--color-secondary);
-      color: var(--color-secondary);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  &::before {
+    content: "";
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 4px 4px 4px 0;
+    border-style: solid;
+    border-color: transparent var(--color-secondary) transparent transparent;
   }
 }
