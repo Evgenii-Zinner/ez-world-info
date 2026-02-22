@@ -402,3 +402,44 @@ th.sort-desc {
   color: var(--color-textDim);
   margin-top: $space-lg;
 }
+// ============================================================================
+// COPY TO CLIPBOARD
+// ============================================================================
+
+.code-cell {
+  position: relative;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-secondary);
+    text-shadow: 0 0 8px var(--color-glowSecondary);
+  }
+}
+
+.copy-feedback {
+  position: absolute;
+  left: 50%;
+  top: -24px;
+  transform: translateX(-50%);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  pointer-events: none;
+  font-weight: bold;
+  box-shadow: 0 2px 8px var(--color-glowSecondary);
+  z-index: 10;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px 4px 0 4px;
+    border-style: solid;
+    border-color: var(--color-secondary) transparent transparent transparent;
+  }
+}

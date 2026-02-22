@@ -38,8 +38,9 @@ export function renderTable({
             sortOrder: 'asc',
             selected: Alpine.$persist([]).as('selectedCountries'),
             search: '',
-            hiddenColumns: Alpine.$persist(['col-code', 'col-gdp-total', 'col-gini', 'col-internet', 'col-urban']).as('hiddenColumns'),
+            hiddenColumns: Alpine.$persist(['col-gdp-total', 'col-gini', 'col-internet', 'col-urban']).as('hiddenColumns'),
             showColumnSettings: false,
+            copiedCode: null,
 
             async init() {
               // Initialize data safely
@@ -137,6 +138,18 @@ export function renderTable({
               }
 
               return result;
+            },
+
+            copyToClipboard(text) {
+              if (!text) return;
+              navigator.clipboard.writeText(text).then(() => {
+                this.copiedCode = text;
+                setTimeout(() => {
+                  this.copiedCode = null;
+                }, 2000);
+              }).catch(err => {
+                console.error('Failed to copy: ', err);
+              });
             },
 
             toggleSelection(code) {
@@ -515,7 +528,13 @@ export function renderTable({
                     />
                 </td>
                 <td x-text="row.name" x-show="!hiddenColumns.includes('col-country')"></td>
-                <td x-text="row.code" x-show="!hiddenColumns.includes('col-code')"></td>
+                <td x-show="!hiddenColumns.includes('col-code')"
+                    class="code-cell"
+                    @click="copyToClipboard(row.code)"
+                    title="Click to copy code">
+                   <span x-text="row.code"></span>
+                   <span x-show="copiedCode === row.code" class="copy-feedback" x-transition.opacity.duration.300ms>Copied!</span>
+                </td>
                 <td x-text="formatNumber(row.population)" x-show="!hiddenColumns.includes('col-population')"></td>
                 <td x-text="formatNumber(row.area)" x-show="!hiddenColumns.includes('col-area')"></td>
                 
