@@ -16,6 +16,7 @@ import {
   sortRows,
   fetchExchangeRates
 } from "./services/api";
+import { rateLimit } from "./middleware/rate-limit";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -42,6 +43,11 @@ app.use(
     },
   })
 );
+
+// Rate limit sensitive endpoints to prevent abuse
+app.use("/api/*", rateLimit({ max: 100, windowMs: 60 * 1000 }));
+app.use("/exchange-rates", rateLimit({ max: 50, windowMs: 60 * 1000 }));
+app.use("/chart-data", rateLimit({ max: 100, windowMs: 60 * 1000 }));
 
 app.get("/", async (c) => {
   const tab = c.req.query("tab") || "table";
