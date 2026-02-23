@@ -7,15 +7,7 @@ import { Header } from "./components/Header";
 import { renderTable } from "./components/CountriesTable";
 import { ChartView } from "./components/ChartView";
 import { escapeHtml } from "./utils/helpers";
-import {
-  loadCountriesData,
-  loadGdpData,
-  parseCountries,
-  parseGdpData,
-  buildRows,
-  sortRows,
-  fetchExchangeRates
-} from "./services/api";
+import { getCountryRows } from "./services/api";
 import { rateLimit } from "./middleware/rate-limit";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -82,46 +74,20 @@ app.get("/api/countriesData", async (c) => {
   // Cache for 1 hour
   c.header('Cache-Control', 'public, max-age=3600');
 
-  const [countriesRaw, gdpRaw, exchangeRates] = await Promise.all([
-    loadCountriesData(),
-    loadGdpData(),
-    fetchExchangeRates(c.env)
-  ]);
-
-  const countries = parseCountries(countriesRaw);
-  const countryCodeSet = new Set(countries.map((country) => country.code));
-  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
-  const rows = buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+  const rows = await getCountryRows(c.env);
 
   return c.json(rows);
 });
 
 app.get("/countries-table", async (c) => {
   // This route might be deprecated or used for HTMX fallback, keeping it functional for now
-  const [countriesRaw, gdpRaw, exchangeRates] = await Promise.all([
-    loadCountriesData(),
-    loadGdpData(),
-    fetchExchangeRates(c.env)
-  ]);
-
-  const countries = parseCountries(countriesRaw);
-  const countryCodeSet = new Set(countries.map((country) => country.code));
-  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
-  const rows = buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+  const rows = await getCountryRows(c.env);
 
   return c.html(renderTable({ rows }));
 });
 
 app.get("/exchange-rates", async (c) => {
-  const exchangeRates = await fetchExchangeRates(c.env);
-  const [countriesRaw, gdpRaw] = await Promise.all([
-    loadCountriesData(),
-    loadGdpData()
-  ]);
-  const countries = parseCountries(countriesRaw);
-  const countryCodeSet = new Set(countries.map((country) => country.code));
-  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
-  const rows = buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+  const rows = await getCountryRows(c.env);
 
   // Return currency rates as JSON keyed by country code
   const rates: Record<string, number | null> = {};
@@ -154,16 +120,7 @@ app.get("/chart-data", async (c) => {
     ? selectedParam.split(",").map((s) => s.trim())
     : [];
 
-  const [countriesRaw, gdpRaw, exchangeRates] = await Promise.all([
-    loadCountriesData(),
-    loadGdpData(),
-    fetchExchangeRates(c.env)
-  ]);
-
-  const countries = parseCountries(countriesRaw);
-  const countryCodeSet = new Set(countries.map((country) => country.code));
-  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
-  const rows = buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+  const rows = await getCountryRows(c.env);
 
   // Filter by selected countries if provided
   let chartRows = rows;

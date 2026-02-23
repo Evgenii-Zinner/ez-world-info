@@ -220,6 +220,16 @@ export function buildRows(
   return rows;
 }
 
-// sortRows is now imported from utils/sorting.ts
-// Export it for backwards compatibility
-export { sortRows } from "../utils/sorting";
+export async function getCountryRows(env?: Env): Promise<CountryRow[]> {
+  const [countriesRaw, gdpRaw, exchangeRates] = await Promise.all([
+    loadCountriesData(),
+    loadGdpData(),
+    fetchExchangeRates(env)
+  ]);
+
+  const countries = parseCountries(countriesRaw);
+  const countryCodeSet = new Set(countries.map((country) => country.code));
+  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
+
+  return buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+}
