@@ -157,7 +157,7 @@ export const ChartView = () => {
             const data = params.data || params;
             const name = data.name || params.name;
             const val = data.value !== undefined ? data.value : params.value;
-            return '<div style="font-family:Orbitron; color:' + theme.main + '; margin-bottom:4px">' + name + '</div>' +
+            return '<div style="font-family:Orbitron; color:' + theme.main + '; margin-bottom:4px">' + escapeHtml(name) + '</div>' +
                     metricLabels[metric] + ': <span style="color:' + (currentTheme === 'dark' ? '#fff' : '#000') + '">' + formatValue(val, metric) + '</span>';
           }
         },
@@ -254,6 +254,16 @@ export const ChartView = () => {
         };
       }
       return baseOption;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function formatValue(val, metric) {
