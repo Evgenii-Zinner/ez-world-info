@@ -1,13 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, mock } from "bun:test";
 import { parseCountries, parseGdpData, buildRows, getCountryRows } from "./api";
 import type { RawCountry, RawGdpData, CountryEntry, GdpEntry } from "../types";
 
 describe("API Service", () => {
   describe("getCountryRows", () => {
     test("should return processed country rows", async () => {
-      // This test relies on the real data loaded in memory (since we ran fetch-data)
-      // and the default behavior of fetchExchangeRates (which might return empty or mock)
+      // Mock fetch to avoid real network call
+      global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify({ rates: { USD: 1 } }))));
 
+      // This test relies on the real data loaded in memory (since we ran fetch-data)
       const rows = await getCountryRows();
 
       expect(rows.length).toBeGreaterThan(0);
