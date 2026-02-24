@@ -233,7 +233,13 @@ export function renderTable({
 
               const escape = (val) => {
                 if (val === null || val === undefined) return '';
-                const str = String(val);
+                let str = String(val);
+
+                // Prevent CSV Injection (Formula Injection)
+                if (/^[=+\-@]/.test(str)) {
+                  str = "'" + str;
+                }
+
                 if (str.includes(',') || str.includes('"') || str.includes('\\n')) {
                   return '"' + str.replace(/"/g, '""') + '"';
                 }
