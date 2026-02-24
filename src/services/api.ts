@@ -25,6 +25,10 @@ let memoryCache: { data: Record<string, number> | null; timestamp: number } = {
   timestamp: 0
 };
 
+export function resetMemoryCache() {
+  memoryCache = { data: null, timestamp: 0 };
+}
+
 // Countries/territories to exclude from the dataset
 const EXCLUDED_CODES = new Set(["ATA", "IOT"]); // Antarctica, British Indian Ocean Territory
 
