@@ -108,4 +108,32 @@ describe("CSV Generation", () => {
     expect(lines[2]).toInclude("Independent");
     expect(lines[3]).toInclude("Dependent");
   });
+
+  it("should sanitize formula injection (starts with =)", () => {
+    const rows = [{ name: "=cmd", code: "TST" }];
+    const csv = generateCSV(rows as any);
+    const line = csv.split('\n')[1];
+    expect(line).toInclude("'=cmd");
+  });
+
+  it("should sanitize formula injection (starts with +)", () => {
+    const rows = [{ name: "+cmd", code: "TST" }];
+    const csv = generateCSV(rows as any);
+    const line = csv.split('\n')[1];
+    expect(line).toInclude("'+cmd");
+  });
+
+  it("should sanitize formula injection (starts with -)", () => {
+    const rows = [{ name: "-cmd", code: "TST" }];
+    const csv = generateCSV(rows as any);
+    const line = csv.split('\n')[1];
+    expect(line).toInclude("'-cmd");
+  });
+
+  it("should sanitize formula injection (starts with @)", () => {
+    const rows = [{ name: "@cmd", code: "TST" }];
+    const csv = generateCSV(rows as any);
+    const line = csv.split('\n')[1];
+    expect(line).toInclude("'@cmd");
+  });
 });

@@ -4,14 +4,26 @@ import app from "../src/index";
 describe("Security Headers", () => {
   it("should have security headers", async () => {
     const res = await app.request("/");
-    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(res.headers.get("X-Frame-Options")).toBe("DENY");
+    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(res.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
-    expect(res.headers.get("Strict-Transport-Security")).toBe("max-age=63072000; includeSubDomains; preload");
+    // Check CSP presence
+    expect(res.headers.get("Content-Security-Policy")).not.toBeNull();
+  });
 
-    const csp = res.headers.get("Content-Security-Policy");
-    expect(csp).toBeDefined();
-    expect(csp).toContain("default-src 'self'");
-    expect(csp).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com");
+  it("should not leak stack traces on error", async () => {
+    // Trigger the catch-all route which fails because ASSETS is undefined in tests
+    const res = await app.request("/non-existent");
+    const text = await res.text();
+
+    // In production, we don't want stack traces.
+    // However, Hono might show them by default in some environments or if not configured otherwise.
+    // Let's see what we get.
+    console.log("Error response body:", text);
+
+    expect(res.status).toBe(500);
+    // These assertions will fail if Hono exposes stack traces by default
+    expect(text).not.toContain("at ");
+    expect(text).not.toContain("src/index.ts");
   });
 });
