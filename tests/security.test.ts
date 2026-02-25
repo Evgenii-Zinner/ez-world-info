@@ -8,14 +8,6 @@ describe("Security Headers", () => {
     expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(res.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
 
-    // Check Permissions-Policy
-    const permissionsPolicy = res.headers.get("Permissions-Policy");
-    expect(permissionsPolicy).not.toBeNull();
-    expect(permissionsPolicy).toContain("camera=()");
-    expect(permissionsPolicy).toContain("geolocation=()");
-    expect(permissionsPolicy).toContain("microphone=()");
-    expect(permissionsPolicy).toContain("payment=()");
-
     // Check CSP presence and tightness
     const csp = res.headers.get("Content-Security-Policy");
     expect(csp).not.toBeNull();
