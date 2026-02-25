@@ -31,7 +31,7 @@ app.use(
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https:"]
+      connectSrc: ["'self'"]
     },
   })
 );

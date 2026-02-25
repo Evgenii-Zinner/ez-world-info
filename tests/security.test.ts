@@ -7,8 +7,13 @@ describe("Security Headers", () => {
     expect(res.headers.get("X-Frame-Options")).toBe("DENY");
     expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(res.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
-    // Check CSP presence
-    expect(res.headers.get("Content-Security-Policy")).not.toBeNull();
+
+    // Check CSP presence and tightness
+    const csp = res.headers.get("Content-Security-Policy");
+    expect(csp).not.toBeNull();
+    // Verify connect-src is tightened (no generic https:)
+    expect(csp).toContain("connect-src 'self'");
+    expect(csp).not.toContain("connect-src 'self' https:");
   });
 
   it("should not leak stack traces on error", async () => {
