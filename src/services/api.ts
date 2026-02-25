@@ -107,7 +107,7 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
 
 // Data is static, embedded as assets
 export async function loadCountriesData(): Promise<RawCountry[]> {
-  return countriesData as RawCountry[];
+  return countriesData as unknown as RawCountry[];
 }
 
 export async function loadGdpData(): Promise<RawGdpData> {
