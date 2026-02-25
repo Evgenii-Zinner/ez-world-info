@@ -6,3 +6,7 @@
 **Vulnerability:** The `exportCSV` function in `CountriesTable.ts` allowed Formula Injection (CSV Injection). Cell values starting with `=`, `+`, `-`, or `@` were exported raw, which could be executed as formulas in spreadsheet software.
 **Learning:** Even when data comes from trusted sources (like RestCountries), data format conversion (like JSON to CSV) can introduce vulnerabilities if the target format has execution capabilities (like Excel formulas).
 **Prevention:** Always sanitize CSV exports by prepending a single quote `'` to cells starting with unsafe characters (`=+\-@`), forcing them to be treated as text.
+## 2025-02-19 - [Permissive Security Headers]
+**Vulnerability:** The app allowed all HTTPS connections via `connect-src https:` in CSP and lacked `Permissions-Policy` header.
+**Learning:** Generic wildcards like `https:` in CSP effectively allow connections to any SSL-secured site, enabling potential data exfiltration. Default browser behavior for powerful features (camera, mic) is permissive unless restricted.
+**Prevention:** Always restrict `connect-src` to `'self'` or specific trusted domains. Use `Permissions-Policy` to explicitly disable powerful browser features the app does not require.

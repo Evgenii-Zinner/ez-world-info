@@ -19,6 +19,16 @@ app.use(
     xFrameOptions: "DENY",
     xContentTypeOptions: "nosniff",
     referrerPolicy: "strict-origin-when-cross-origin",
+    permissionsPolicy: {
+      accelerometer: [],
+      camera: [],
+      geolocation: [],
+      gyroscope: [],
+      magnetometer: [],
+      microphone: [],
+      payment: [],
+      usb: []
+    },
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
       scriptSrc: [
@@ -31,7 +41,7 @@ app.use(
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https:"]
+      connectSrc: ["'self'"]
     },
   })
 );
