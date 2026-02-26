@@ -14,6 +14,10 @@ describe("Security Headers", () => {
     // Verify connect-src is tightened (no generic https:)
     expect(csp).toContain("connect-src 'self'");
     expect(csp).not.toContain("connect-src 'self' https:");
+
+    // Verify new hardened headers
+    expect(csp).toContain("object-src 'none'");
+    expect(csp).toContain("base-uri 'self'");
   });
 
   it("should not leak stack traces on error", async () => {
