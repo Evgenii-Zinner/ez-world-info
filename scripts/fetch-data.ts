@@ -139,16 +139,15 @@ async function fetchData() {
     ]);
 
     const indicatorOk = indicatorRes.every((res) => res.ok);
-    if (!countriesRes.ok || !gdpRes.ok || !wikidataRes.ok || !indicatorOk) {
+
+    // Critical failures: RestCountries and GDP
+    if (!countriesRes.ok || !gdpRes.ok || !indicatorOk) {
       console.error("❌ Upstream fetch failures:");
       if (!countriesRes.ok) {
         console.error(`- RestCountries: ${countriesRes.status} ${countriesRes.statusText}`);
       }
       if (!gdpRes.ok) {
         console.error(`- WorldBank GDP per Capita: ${gdpRes.status} ${gdpRes.statusText}`);
-      }
-      if (!wikidataRes.ok) {
-        console.error(`- Wikidata SPARQL: ${wikidataRes.status} ${wikidataRes.statusText}`);
       }
       indicatorRes.forEach((res, index) => {
         if (!res.ok) {
@@ -157,13 +156,24 @@ async function fetchData() {
           console.error(`- WorldBank ${indicatorKey} (${indicatorCode}): ${res.status} ${res.statusText}`);
         }
       });
-      throw new Error("Failed to fetch upstream data");
+      throw new Error("Failed to fetch critical upstream data");
     }
 
     const countriesData = await countriesRes.json();
     const gdpData = await gdpRes.json();
-    const wikidataData = await wikidataRes.json();
     const indicatorPayloads = await Promise.all(indicatorRes.map((res) => res.json()));
+
+    // Non-critical: Wikidata (official languages)
+    let wikidataData: any = {};
+    if (wikidataRes.ok) {
+      try {
+        wikidataData = await wikidataRes.json();
+      } catch (e) {
+        console.warn("⚠ Failed to parse Wikidata response, skipping language data.");
+      }
+    } else {
+      console.warn(`⚠ Wikidata fetch failed (${wikidataRes.status}), skipping language data.`);
+    }
 
     // Process Wikidata results into a map by ISO3 code
     const wikidataMap: Record<string, { officialLanguage?: string }> = {};
