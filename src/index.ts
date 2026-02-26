@@ -21,6 +21,8 @@ app.use(
     referrerPolicy: "strict-origin-when-cross-origin",
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
@@ -116,16 +118,34 @@ app.get("/chart", async (c) => {
 
 app.get("/chart-data", async (c) => {
   const selectedParam = c.req.query("selected");
+
+  // Validate input length to prevent DoS (memory exhaustion)
+  if (selectedParam && selectedParam.length > 500) {
+    return c.text("Request URI too long", 414);
+  }
+
   const selectedCountries = selectedParam
     ? selectedParam.split(",").map((s) => s.trim())
     : [];
+
+  // Limit number of selected countries
+  if (selectedCountries.length > 50) {
+    return c.text("Too many countries selected (max 50)", 400);
+  }
+
+  // Validate format of country codes
+  for (const code of selectedCountries) {
+    if (!/^[A-Za-z]{3}$/.test(code)) {
+      return c.text("Invalid country code format", 400);
+    }
+  }
 
   const rows = await getCountryRows(c.env);
 
   // Filter by selected countries if provided
   let chartRows = rows;
   if (selectedCountries.length > 0) {
-    const selectedSet = new Set(selectedCountries);
+    const selectedSet = new Set(selectedCountries.map(s => s.toUpperCase()));
     chartRows = chartRows.filter((r) => selectedSet.has(r.code));
   } else {
     // Default: show top 50 by GDP per capita if no selection
