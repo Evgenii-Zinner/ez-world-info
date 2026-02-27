@@ -38,8 +38,16 @@ let memoryCache: { data: Record<string, number> | null; timestamp: number } = {
   timestamp: 0
 };
 
+// Module-level cache for static data
+let cachedCountries: CountryEntry[] | null = null;
+let cachedGdpMap: Map<string, GdpEntry> | null = null;
+let cachedDetailsMap: Map<string, RawCountry> | null = null;
+
 export function resetMemoryCache() {
   memoryCache = { data: null, timestamp: 0 };
+  cachedCountries = null;
+  cachedGdpMap = null;
+  cachedDetailsMap = null;
 }
 
 // Countries/territories to exclude from the dataset
@@ -173,6 +181,38 @@ export function parseGdpData(
 }
 
 /**
+ * Helper to get static data with caching.
+ * Loads and parses data only once.
+ */
+async function getStaticData() {
+  if (cachedCountries && cachedGdpMap && cachedDetailsMap) {
+    return { countries: cachedCountries, gdpMap: cachedGdpMap, detailsMap: cachedDetailsMap };
+  }
+
+  const [countriesRaw, gdpRaw] = await Promise.all([
+    loadCountriesData(),
+    loadGdpData()
+  ]);
+
+  const countries = parseCountries(countriesRaw);
+  const countryCodeSet = new Set(countries.map((country) => country.code));
+  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
+
+  const detailsMap = new Map<string, RawCountry>();
+  countriesRaw.forEach((country) => {
+    if (country.cca3) {
+      detailsMap.set(country.cca3, country);
+    }
+  });
+
+  cachedCountries = countries;
+  cachedGdpMap = gdpMap;
+  cachedDetailsMap = detailsMap;
+
+  return { countries, gdpMap, detailsMap };
+}
+
+/**
  * Merges all data sources into the final tabular format.
  *
  * Logic includes:
@@ -184,17 +224,23 @@ export function parseGdpData(
 export function buildRows(
   countries: CountryEntry[],
   gdpMap: Map<string, GdpEntry>,
-  countriesRaw?: RawCountry[],
+  countriesRawOrMap?: RawCountry[] | Map<string, RawCountry>,
   exchangeRates?: Record<string, number>
 ): CountryRow[] {
-  // Parse full country data if provided
-  let countryDetailsMap = new Map<string, RawCountry>();
-  if (countriesRaw) {
-    countriesRaw.forEach((country) => {
-      if (country.cca3) {
-        countryDetailsMap.set(country.cca3, country);
-      }
-    });
+  // Use provided map or build it from array (legacy/test support)
+  let countryDetailsMap: Map<string, RawCountry>;
+
+  if (countriesRawOrMap instanceof Map) {
+    countryDetailsMap = countriesRawOrMap;
+  } else {
+    countryDetailsMap = new Map<string, RawCountry>();
+    if (countriesRawOrMap) {
+      countriesRawOrMap.forEach((country) => {
+        if (country.cca3) {
+          countryDetailsMap.set(country.cca3, country);
+        }
+      });
+    }
   }
 
   const rows = countries.map((country) => {
@@ -215,13 +261,18 @@ export function buildRows(
     // Extract latest Gini value if available
     let giniValue: number | undefined;
     if (details?.gini && typeof details.gini === "object") {
-      // Gini data is a dictionary of "year": value
-      const giniEntries = Object.entries(details.gini).sort((a, b) => {
-        return parseInt(b[0]) - parseInt(a[0]); // Sort by year descending
-      });
-      if (giniEntries.length > 0) {
-        giniValue = giniEntries[0][1] as number;
+      // Optimized Gini extraction: find max year without sorting array
+      let maxYear = -1;
+      let latestVal: number | undefined;
+
+      for (const yearStr in details.gini) {
+          const year = parseInt(yearStr);
+          if (year > maxYear) {
+              maxYear = year;
+              latestVal = details.gini[yearStr];
+          }
       }
+      giniValue = latestVal;
     }
 
     const giniIndicator = indicators.gini ?? giniValue;
@@ -282,15 +333,12 @@ export function buildRows(
  * @returns Fully populated country rows for the frontend.
  */
 export async function getCountryRows(env?: Env): Promise<CountryRow[]> {
-  const [countriesRaw, gdpRaw, exchangeRates] = await Promise.all([
-    loadCountriesData(),
-    loadGdpData(),
+  const [staticData, exchangeRates] = await Promise.all([
+    getStaticData(),
     fetchExchangeRates(env)
   ]);
 
-  const countries = parseCountries(countriesRaw);
-  const countryCodeSet = new Set(countries.map((country) => country.code));
-  const gdpMap = parseGdpData(gdpRaw, countryCodeSet);
+  const { countries, gdpMap, detailsMap } = staticData;
 
-  return buildRows(countries, gdpMap, countriesRaw, exchangeRates);
+  return buildRows(countries, gdpMap, detailsMap, exchangeRates);
 }
