@@ -18,6 +18,18 @@ describe("Security Headers", () => {
     // Verify new hardened headers
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("base-uri 'self'");
+
+    // Verify Permissions-Policy
+    const permissionsPolicy = res.headers.get("Permissions-Policy");
+    expect(permissionsPolicy).not.toBeNull();
+    expect(permissionsPolicy).toContain("accelerometer=()");
+    expect(permissionsPolicy).toContain("camera=()");
+    expect(permissionsPolicy).toContain("geolocation=()");
+    expect(permissionsPolicy).toContain("gyroscope=()");
+    expect(permissionsPolicy).toContain("magnetometer=()");
+    expect(permissionsPolicy).toContain("microphone=()");
+    expect(permissionsPolicy).toContain("payment=()");
+    expect(permissionsPolicy).toContain("usb=()");
   });
 
   it("should not leak stack traces on error", async () => {

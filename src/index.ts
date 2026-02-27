@@ -35,6 +35,16 @@ app.use(
       fontSrc: ["'self'", "data:"],
       connectSrc: ["'self'"]
     },
+    permissionsPolicy: {
+      accelerometer: [],
+      camera: [],
+      geolocation: [],
+      gyroscope: [],
+      magnetometer: [],
+      microphone: [],
+      payment: [],
+      usb: []
+    }
   })
 );
 
