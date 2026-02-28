@@ -107,5 +107,26 @@ describe("API Service", () => {
           expect(rows).toHaveLength(1);
           expect(rows[0].gdpPerCapita).toBeNull();
       });
+
+      test("should accept Map<string, RawCountry> for optimized lookup", () => {
+        const countries: CountryEntry[] = [
+            { code: "USA", name: "United States" }
+        ];
+        const gdpMap = new Map<string, GdpEntry>();
+        gdpMap.set("USA", { value: 70000, year: "2022" });
+
+        const rawCountryMap = new Map<string, RawCountry>();
+        rawCountryMap.set("USA", {
+          cca3: "USA",
+          name: { common: "United States" },
+          population: 330000000
+        });
+
+        const rows = buildRows(countries, gdpMap, rawCountryMap);
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].code).toBe("USA");
+        expect(rows[0].population).toBe(330000000);
+      });
   });
 });
