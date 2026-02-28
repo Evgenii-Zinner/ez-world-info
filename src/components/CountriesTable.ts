@@ -303,28 +303,30 @@ export function renderTable({
       ${showControls ? `
       <div class="table-header-controls">
         <div class="table-actions-left">
-          <div class="table-filters">
+          <div class="table-filters" role="group" aria-label="Filter countries">
             <button 
               class="filter-btn" 
               :class="{ 'active': filter === 'all' }" 
+              :aria-pressed="filter === 'all'"
               @click="filter = 'all'"
             >All</button>
             <button 
               class="filter-btn" 
               :class="{ 'active': filter === 'selected' }" 
+              :aria-pressed="filter === 'selected'"
               @click="filter = 'selected'"
             >Selected</button>
           </div>
-          <div class="selection-count" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'"></div>
+          <div class="selection-count" aria-live="polite" x-show="selected.length > 0" x-text="'✓ ' + selected.length + ' selected'"></div>
         </div>
         
         <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
-             <input type="text" x-model="search" placeholder="Search..." class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
+             <input type="text" x-model="search" placeholder="Search..." aria-label="Search countries" class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
-            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" :aria-expanded="showColumnSettings" aria-controls="column-settings-menu" aria-haspopup="menu" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
-            <div x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
+            <div id="column-settings-menu" x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
                 <div class="column-settings-content">
                 <h3>Show/Hide Columns</h3>
                 <div class="column-options">
