@@ -9,3 +9,7 @@
 ## 2024-05-24 -
 **Learning:** `Alpine.$persist` relies on `localStorage`. Changing default values in source code (e.g., removing a column from `hiddenColumns`) does NOT update the stored preference for returning users, potentially hiding new features.
 **Action:** When modifying default visibility of persisted UI elements, consider versioning the storage key (e.g., `hiddenColumns_v2`) or implement a migration strategy to ensure all users see the update.
+
+## 2026-03-01 -
+**Learning:** Pagination logic is explicitly rejected for this project due to business constraints and architecture decisions.
+**Action:** Never implement pagination logic for tables or data views in this repository.
