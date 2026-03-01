@@ -12,6 +12,11 @@ import { rateLimit } from "./middleware/rate-limit";
 
 const app = new Hono<{ Bindings: Env }>();
 
+app.onError((err, c) => {
+  console.error(`[Error] ${c.req.method} ${c.req.url}:`, err);
+  return c.text("Internal Server Error", 500);
+});
+
 app.use(
   "*",
   secureHeaders({
