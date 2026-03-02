@@ -84,7 +84,21 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
 
     // Fetch fresh data
     console.log("→ Fetching fresh exchange rates from API...");
-    const response = await fetch(EXCHANGE_RATE_URL);
+
+    // SECURITY ENHANCEMENT: Add a 5-second timeout to prevent the external API
+    // from causing our Cloudflare Worker to hang, preventing Resource Exhaustion (DoS risk).
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    let response;
+    try {
+      response = await fetch(EXCHANGE_RATE_URL, {
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
     const data = await response.json() as { rates: Record<string, number> };
     const rates = data.rates;
     console.log("✓ Fetched fresh exchange rates");

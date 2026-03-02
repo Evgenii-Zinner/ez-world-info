@@ -18,3 +18,7 @@
 **Vulnerability:** The `CountriesTable.ts` component embeds data in a `<script type="application/json">` tag. It attempted to prevent XSS by escaping `</script>` using a case-sensitive regex (`/<\/script/g`). An attacker could inject a string containing a case-variant like `</SCRIPT>`, which would bypass the regex, prematurely close the script tag, and allow execution of malicious scripts.
 **Learning:** HTML tag parsing is case-insensitive, including script closing tags. Security measures attempting to sanitize HTML strings must account for this, especially when serializing data into JSON blocks.
 **Prevention:** Always use the case-insensitive flag (`i`) in regular expressions designed to sanitize HTML tags (e.g., `/<\/(script)/gi`), and preserve case if possible.
+## 2025-02-28 - [Sentinel Operational Rule Update]
+**Vulnerability:** N/A (Process Improvement)
+**Learning:** If no critical or high severity vulnerabilities are found during the initial scan, Sentinel should not halt but instead automatically proceed with implementing a security enhancement (e.g., adding timeouts, tightening headers, improving sanitization).
+**Prevention:** This ensures continuous improvement of the codebase's defense-in-depth posture even when obvious flaws are absent.
