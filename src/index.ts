@@ -6,7 +6,6 @@ import { Layout } from "./utils/layout";
 import { Header } from "./components/Header";
 import { renderTable } from "./components/CountriesTable";
 import { ChartView } from "./components/ChartView";
-import { escapeHtml } from "./utils/helpers";
 import { getCountryRows } from "./services/api";
 import { rateLimit } from "./middleware/rate-limit";
 

@@ -1,5 +1,4 @@
 import type { CountryRow } from "../types";
-import { escapeHtml } from "../utils/helpers";
 
 type TableProps = {
   rows?: CountryRow[]; // Made optional
