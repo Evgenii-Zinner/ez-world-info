@@ -15,3 +15,9 @@ public/styles.css
 public/styles.css.map
 
 PROGRESS.md
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
