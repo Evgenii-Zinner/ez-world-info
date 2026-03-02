@@ -59,7 +59,10 @@ describe("Exchange Rates Service", () => {
 
     expect(rates).toEqual(apiRates);
     expect(env.EZ_WORLD_INFO_KV.get).toHaveBeenCalled();
-    expect(global.fetch).toHaveBeenCalledWith("https://api.exchangerate-api.com/v4/latest/USD");
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.exchangerate-api.com/v4/latest/USD",
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
     expect(env.EZ_WORLD_INFO_KV.put).toHaveBeenCalledWith(
       "exchange_rates",
       JSON.stringify(apiRates),
