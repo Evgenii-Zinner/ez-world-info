@@ -1,11 +1,7 @@
-## 2024-03-02 - Table Locators and Alpine.js Rendering
+## 2024-05-24
+**Learning:** Playwright is used for E2E testing in this project, but it is not installed by default in the execution environment. The correct commands to install and run the Playwright browser dependencies are `npx playwright install` and `npx playwright test`. In addition, since the tests hit a local development server, `wrangler dev` (which is typically started via `bun run dev` or automatically run in CI) must be accessible or mocked. However, since we ran `npx playwright test` while a local dev server was already running in the background, the tests succeeded. The table data requires the DOM to populate from Alpine.js state, so waiting for the `.status` text to disappear or waiting for a known row (e.g., Japan) is an effective strategy to avoid flakes.
+**Action:** Created `e2e/table-management.spec.ts` testing the visibility of columns, sorting behavior, and CSV export functionality. Used explicit assertions on accessibility attributes (`aria-sort`, checked states, visible headers) rather than raw DOM structure to ensure resilience.
 
-**Learning:** Playwright locators for rows and cells need `exact: true` and `.first()` in cases where responsive CSS hides/shows multiple elements for the same logical component. In the `CountriesTable.ts`, rows may generate elements that match text locators broadly. Waiting on `.status` to clear "Loading Data" correctly handles Alpine.js asynchronous state rendering.
-
-**Action:** Used `exact: true` and `.first()` on `getByRole('cell')` and specifically watched for `.status` to be updated out of the loading state before testing data to ensure flake-free evaluation of search functions.
-
-## 2024-03-02 - Navigation Links
-
-**Learning:** The navigation link for "Chart" conflicts with an external link "Charts" pointing to Echarts in the footer when using `/Chart/i`.
-
-**Action:** Ensure `exact: true` is used when locating top level navigation `getByRole('link', { name: 'Chart', exact: true })` to prevent ambiguous element resolution.
+## 2024-05-24
+**Learning:** Playwright is used for E2E testing in this project, but it is not installed by default in the execution environment. The correct commands to install and run the Playwright browser dependencies are `npx playwright install` and `npx playwright test`. In addition, since the tests hit a local development server, `wrangler dev` (which is typically started via `bun run dev` or automatically run in CI) must be accessible or mocked. However, since we ran `npx playwright test` while a local dev server was already running in the background, the tests succeeded. The table data requires the DOM to populate from Alpine.js state, so waiting for the `.status` text to disappear or waiting for a known row (e.g., Japan) is an effective strategy to avoid flakes.
+**Action:** Created `e2e/table-management.spec.ts` testing the visibility of columns, sorting behavior, and CSV export functionality. Used explicit assertions on accessibility attributes (`aria-sort`, checked states, visible headers) rather than raw DOM structure to ensure resilience.
