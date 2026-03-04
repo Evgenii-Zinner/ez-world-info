@@ -19,7 +19,11 @@ export function renderTable({
   // Otherwise, default to empty array and let Alpine fetch.
 
   // Safe JSON injection using script tag to prevent XSS in HTML attributes
-  const safeJson = JSON.stringify(rows).replace(/<\/(script)/gi, '<\\/$1');
+  const safeJson = JSON.stringify(rows)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
   const dataId = 'data-' + Math.random().toString(36).substr(2, 9);
   const hasInitialData = rows.length > 0;
 
