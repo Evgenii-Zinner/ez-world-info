@@ -10,6 +10,19 @@ type TableProps = {
   enableSorting?: boolean;
 };
 
+/**
+ * Renders the main data table shell and its Alpine.js component logic.
+ *
+ * This component utilizes the "JSON Island pattern" for hydration:
+ * Large server-side datasets are serialized into a hidden <script type="application/json">
+ * tag rather than being directly interpolated into HTML attributes. Alpine.js then parses
+ * this tag on initialization. This avoids massive HTML bloat and improves rendering performance.
+ *
+ * @param props.rows - Server-side data array. If empty, Alpine will fetch data client-side.
+ * @param props.loadingRates - Optional flag for UI state.
+ * @param props.showControls - Whether to render the search/filter header controls.
+ * @returns The complete HTML string for the table component.
+ */
 export function renderTable({
   rows = [], // Default to empty
   loadingRates = false,
@@ -19,6 +32,9 @@ export function renderTable({
   // Otherwise, default to empty array and let Alpine fetch.
 
   // Safe JSON injection using script tag to prevent XSS in HTML attributes
+  // Note: \u2028 (Line Separator) and \u2029 (Paragraph Separator) must be explicitly
+  // escaped because they are valid JSON but cause fatal SyntaxErrors if left unescaped
+  // inside an HTML <script> block, breaking the entire JS execution context.
   const safeJson = JSON.stringify(rows)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
@@ -39,6 +55,10 @@ export function renderTable({
             filter: 'all',
             sortBy: 'name',
             sortOrder: 'asc',
+            // ⚠️ CRITICAL: When changing the default value of an Alpine.$persist property,
+            // you MUST update the .as('alias_name') string. Otherwise, returning users
+            // will continue to load their old, stale cached value from localStorage
+            // instead of your new default.
             selected: Alpine.$persist([]).as('selectedCountries'),
             search: '',
             hiddenColumns: Alpine.$persist(['col-gdp-total', 'col-gini', 'col-internet', 'col-urban']).as('hiddenColumns'),
@@ -239,6 +259,9 @@ export function renderTable({
                 let str = String(val);
 
                 // Prevent CSV Injection (Formula Injection)
+                // If a malicious user sets their name to "=CMD|' /C calc'!A0",
+                // Excel would execute it. Prepending a single quote forces Excel
+                // to treat the cell as raw text instead of an executable formula.
                 if (/^[=+\-@]/.test(str)) {
                   str = "'" + str;
                 }
