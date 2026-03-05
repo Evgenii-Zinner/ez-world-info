@@ -44,7 +44,16 @@ export const rateLimit = (config: Partial<RateLimitConfig> = {}) => {
     // Lazy cleanup to prevent memory leak (if map grows too large)
     // In a real production system with many nodes, this would be handled differently (e.g. KV TTL)
     if (ipHits.size > 5000) {
-      ipHits.clear();
+      for (const [key, record] of ipHits.entries()) {
+        if (now > record.resetTime) {
+          ipHits.delete(key);
+        }
+      }
+
+      // If map is still too large (e.g. active DDoS), hard clear to protect memory
+      if (ipHits.size > 10000) {
+        ipHits.clear();
+      }
     }
 
     await next();
