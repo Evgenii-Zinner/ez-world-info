@@ -49,6 +49,10 @@ export function renderTable({
         const registerComponent = () => {
           if (Alpine.data('countriesTable')) return;
 
+          // ⚡ Cache formatters outside of Alpine reactive state to prevent proxy overhead
+          // and unnecessary reactivity cycles when initializing them.
+          const formattersCache = {};
+
           Alpine.data('countriesTable', (initialDataOrId, hasServerData) => ({
             allRows: [], // Initialize empty
             isLoading: !hasServerData,
@@ -219,19 +223,33 @@ export function renderTable({
               }
             },
 
+            _getFormatter(type, currency = 'USD') {
+              const key = type + '_' + currency;
+              if (!formattersCache[key]) {
+                if (type === 'currency') {
+                  formattersCache[key] = new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 });
+                } else if (type === 'compact') {
+                  formattersCache[key] = new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, notation: 'compact', maximumFractionDigits: 1 });
+                } else if (type === 'number') {
+                  formattersCache[key] = new Intl.NumberFormat('en-US');
+                }
+              }
+              return formattersCache[key];
+            },
+
             formatCurrency(val, currency = 'USD') {
               if (val === null || val === undefined) return 'n/a';
-              return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(val);
+              return this._getFormatter('currency', currency).format(val);
             },
 
             formatCompact(val, currency = 'USD') {
               if (val === null || val === undefined) return 'n/a';
-              return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, notation: 'compact', maximumFractionDigits: 1 }).format(val);
+              return this._getFormatter('compact', currency).format(val);
             },
 
             formatNumber(val) {
               if (val === null || val === undefined) return 'n/a';
-              return new Intl.NumberFormat('en-US').format(val);
+              return this._getFormatter('number', '').format(val);
             },
 
             formatPercent(val) {
