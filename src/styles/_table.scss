@@ -409,10 +409,18 @@ th.sort-desc {
 .code-cell {
   position: relative;
   cursor: pointer;
+  outline: none;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     color: var(--color-secondary);
     text-shadow: 0 0 8px var(--color-glowSecondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: -2px;
+    border-radius: 4px;
   }
 }
 

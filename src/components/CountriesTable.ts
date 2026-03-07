@@ -582,7 +582,12 @@ export function renderTable({
                 <td x-text="row.name" x-show="!hiddenColumns.includes('col-country')"></td>
                 <td x-show="!hiddenColumns.includes('col-code')"
                     class="code-cell"
+                    role="button"
+                    tabindex="0"
+                    :aria-label="'Copy code ' + row.code"
                     @click="copyToClipboard(row.code)"
+                    @keydown.enter.prevent="copyToClipboard(row.code)"
+                    @keydown.space.prevent="copyToClipboard(row.code)"
                     title="Click to copy code">
                    <span x-text="row.code"></span>
                    <span x-show="copiedCode === row.code" class="copy-feedback" x-transition.opacity.duration.300ms>Copied!</span>
