@@ -13,3 +13,6 @@
 ## 2026-03-01 -
 **Learning:** Pagination logic is explicitly rejected for this project due to business constraints and architecture decisions.
 **Action:** Never implement pagination logic for tables or data views in this repository.
+## 2026-03-08 -
+**Learning:** Shareable state implementation in Alpine.js components requires serializing state (active filters, search queries) to URL parameters and parsing them inside the component's `init()` method using `new URLSearchParams(window.location.search)`.
+**Action:** When adding functional enhancements that require preserving user views, utilize URL query parameters to ensure the state can be shared and accurately hydrated on reload.

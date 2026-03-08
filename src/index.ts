@@ -174,7 +174,7 @@ app.get("/chart-data", async (c) => {
 });
 
 app.all("*", async (c) => {
-  const res = await c.env.ASSETS.fetch(c.req.raw);
+  const res = c.env.ASSETS ? await c.env.ASSETS.fetch(c.req.raw) : new Response("Not Found", { status: 404 });
   // Clone response to allow header modification by secureHeaders middleware
   const newRes = new Response(res.body, res);
   return newRes;
