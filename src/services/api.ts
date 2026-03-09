@@ -128,11 +128,11 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
 }
 
 // Data is static, embedded as assets
-export async function loadCountriesData(): Promise<RawCountry[]> {
+async function loadCountriesData(): Promise<RawCountry[]> {
   return countriesData as unknown as RawCountry[];
 }
 
-export async function loadGdpData(): Promise<RawGdpData> {
+async function loadGdpData(): Promise<RawGdpData> {
   return gdpData as unknown as RawGdpData;
 }
 
@@ -170,25 +170,15 @@ export function parseGdpData(
     const iso3 = item?.countryiso3code?.toUpperCase() ?? "";
 
     // Ensure strict 3-letter ISO code format to filter out aggregates like "WLD" (World)
-    if (!/^[A-Z]{3}$/.test(iso3)) {
-      continue;
-    }
+    if (!/^[A-Z]{3}$/.test(iso3)) continue;
+    if (item.value == null) continue;
+    if (allowedCodes && !allowedCodes.has(iso3)) continue;
+    if (map.has(iso3)) continue; // Only take the first entry encountered (assuming sorted by latest date by API)
 
-    if (item.value === null || item.value === undefined) {
-      continue;
-    }
-
-    if (allowedCodes && !allowedCodes.has(iso3)) {
-      continue;
-    }
-
-    // Only take the first entry encountered (assuming sorted by latest date by API)
-    if (!map.has(iso3)) {
-      map.set(iso3, {
-        value: item.value,
-        year: item.date ?? ""
-      });
-    }
+    map.set(iso3, {
+      value: item.value,
+      year: item.date ?? ""
+    });
   }
 
   return map;
@@ -242,19 +232,14 @@ export function buildRows(
   exchangeRates?: Record<string, number>
 ): CountryRow[] {
   // Use provided map or build it from array (legacy/test support)
-  let countryDetailsMap: Map<string, RawCountry>;
+  const countryDetailsMap = countriesRawOrMap instanceof Map
+    ? countriesRawOrMap
+    : new Map<string, RawCountry>();
 
-  if (countriesRawOrMap instanceof Map) {
-    countryDetailsMap = countriesRawOrMap;
-  } else {
-    countryDetailsMap = new Map<string, RawCountry>();
-    if (countriesRawOrMap) {
-      countriesRawOrMap.forEach((country) => {
-        if (country.cca3) {
-          countryDetailsMap.set(country.cca3, country);
-        }
-      });
-    }
+  if (!(countriesRawOrMap instanceof Map) && countriesRawOrMap) {
+    countriesRawOrMap.forEach((country) => {
+      if (country.cca3) countryDetailsMap.set(country.cca3, country);
+    });
   }
 
   const rows = countries.map((country) => {
@@ -317,21 +302,10 @@ export function buildRows(
 
   // Default Sort: GDP Per Capita (Descending), then Name (Ascending)
   rows.sort((a, b) => {
-    if (a.gdpPerCapita === null && b.gdpPerCapita === null) {
-      return a.name.localeCompare(b.name);
-    }
-
-    if (a.gdpPerCapita === null) {
-      return 1; // Nulls last
-    }
-
-    if (b.gdpPerCapita === null) {
-      return -1; // Nulls last
-    }
-
-    if (b.gdpPerCapita !== a.gdpPerCapita) {
-      return b.gdpPerCapita - a.gdpPerCapita;
-    }
+    if (a.gdpPerCapita === null && b.gdpPerCapita === null) return a.name.localeCompare(b.name);
+    if (a.gdpPerCapita === null) return 1; // Nulls last
+    if (b.gdpPerCapita === null) return -1; // Nulls last
+    if (b.gdpPerCapita !== a.gdpPerCapita) return b.gdpPerCapita - a.gdpPerCapita;
 
     return a.name.localeCompare(b.name);
   });
