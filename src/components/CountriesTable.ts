@@ -68,6 +68,7 @@ export function renderTable({
             hiddenColumns: Alpine.$persist(['col-gdp-total', 'col-gini', 'col-internet', 'col-urban']).as('hiddenColumns'),
             showColumnSettings: false,
             copiedCode: null,
+            linkCopied: false,
 
             async init() {
               // Initialize data safely
@@ -89,6 +90,14 @@ export function renderTable({
               const params = new URLSearchParams(window.location.search);
               if (params.get('filter') === 'selected') {
                   this.filter = 'selected';
+              }
+              const urlSelected = params.get('selected');
+              if (urlSelected) {
+                  this.selected = urlSelected.split(',').filter(Boolean);
+              }
+              const urlSearch = params.get('search');
+              if (urlSearch) {
+                  this.search = urlSearch;
               }
 
               if (hasServerData) return;
@@ -176,6 +185,32 @@ export function renderTable({
                 }, 2000);
               }).catch(err => {
                 console.error('Failed to copy: ', err);
+              });
+            },
+
+            copyShareLink() {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('selected');
+              url.searchParams.delete('filter');
+              url.searchParams.delete('search');
+
+              if (this.selected.length > 0) {
+                url.searchParams.set('selected', this.selected.join(','));
+              }
+              if (this.filter && this.filter !== 'all') {
+                url.searchParams.set('filter', this.filter);
+              }
+              if (this.search) {
+                url.searchParams.set('search', this.search);
+              }
+
+              navigator.clipboard.writeText(url.toString()).then(() => {
+                this.linkCopied = true;
+                setTimeout(() => {
+                  this.linkCopied = false;
+                }, 2000);
+              }).catch(err => {
+                console.error('Failed to copy link: ', err);
               });
             },
 
@@ -367,6 +402,7 @@ export function renderTable({
         <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
              <input type="text" x-model="search" placeholder="Search..." aria-label="Search countries" class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="copyShareLink()" x-text="linkCopied ? '✅ Copied!' : '🔗 Copy Link'"></button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" :aria-expanded="showColumnSettings" aria-controls="column-settings-menu" aria-haspopup="menu" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
