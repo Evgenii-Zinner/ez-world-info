@@ -218,12 +218,6 @@ async function getStaticData() {
 
 /**
  * Merges all data sources into the final tabular format.
- *
- * Logic includes:
- * - Mapping exchange rates to the country's first listed currency.
- * - Sorting Gini index data by year to find the most recent value.
- * - Resolving parent countries for dependent territories.
- * - Sorting the final list by GDP per Capita (descending).
  */
 export function buildRows(
   countries: CountryEntry[],
