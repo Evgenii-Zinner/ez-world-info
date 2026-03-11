@@ -16,6 +16,19 @@ const WORLDBANK_INDICATORS: Record<string, string> = {
 // Wikidata SPARQL endpoint for official languages
 const WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql";
 
+/**
+ * SPARQL Query to fetch official languages for all countries.
+ *
+ * Wikidata uses specific property and item codes (P-numbers and Q-numbers).
+ * For future maintainers, here is the translation of the magic strings below:
+ * - wdt:P31   -> "instance of"
+ * - wd:Q6256  -> "country" (Sovereign state)
+ * - wdt:P298  -> "ISO 3166-1 alpha-3 code" (CCA3, e.g., "USA")
+ * - wdt:P37   -> "official language"
+ *
+ * Flow: Find all entities that are instances of a country, get their ISO-3 codes,
+ * and optionally retrieve their official languages (translated to English via the label service).
+ */
 const WIKIDATA_QUERY = `
 SELECT ?iso3Code ?officialLanguageLabel WHERE {
   ?country wdt:P31 wd:Q6256.
