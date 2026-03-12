@@ -43,6 +43,41 @@ describe("API Service", () => {
         expect(result).toHaveLength(1);
         expect(result[0].code).toBe("USA");
     });
+
+    test("should return empty array for empty input", () => {
+        const result = parseCountries([]);
+        expect(result).toEqual([]);
+    });
+
+    test("should filter out all excluded codes", () => {
+        const input: RawCountry[] = [
+            { cca3: "ATA", name: { common: "Antarctica" } },
+            { cca3: "IOT", name: { common: "British Indian Ocean Territory" } },
+        ];
+        const result = parseCountries(input);
+        expect(result).toEqual([]);
+    });
+
+    test("should handle empty strings for cca3 and name.common", () => {
+        const input: RawCountry[] = [
+            { cca3: "", name: { common: "Valid Name" } },
+            { cca3: "USA", name: { common: "" } },
+        ];
+        const result = parseCountries(input);
+        // Current implementation treats empty strings as truthy, so they are not filtered out.
+        // Based on: country.cca3 && country.name?.common
+        // Empty string is falsy in JS.
+        expect(result).toEqual([]);
+    });
+
+    test("should handle partial name objects", () => {
+        const input: RawCountry[] = [
+            { cca3: "CAN", name: {} },
+            { cca3: "MEX", name: { common: undefined } },
+        ];
+        const result = parseCountries(input);
+        expect(result).toEqual([]);
+    });
   });
 
   describe("parseGdpData", () => {
