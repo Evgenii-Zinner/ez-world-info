@@ -95,13 +95,6 @@ app.get("/api/countriesData", async (c) => {
   return c.json(rows);
 });
 
-app.get("/countries-table", async (c) => {
-  // This route might be deprecated or used for HTMX fallback, keeping it functional for now
-  const rows = await getCountryRows(c.env);
-
-  return c.html(renderTable({ rows }));
-});
-
 app.get("/exchange-rates", async (c) => {
   const rows = await getCountryRows(c.env);
 
