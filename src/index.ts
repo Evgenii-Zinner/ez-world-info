@@ -9,6 +9,8 @@ import { ChartView } from "./components/ChartView";
 import { getCountryRows } from "./services/api";
 import { rateLimit } from "./middleware/rate-limit";
 
+const COUNTRY_CODE_REGEX = /^[A-Za-z]{3}$/;
+
 const app = new Hono<{ Bindings: Env }>();
 
 app.onError((err, c) => {
@@ -142,7 +144,7 @@ app.get("/chart-data", async (c) => {
 
   // Validate format of country codes
   for (const code of selectedCountries) {
-    if (!/^[A-Za-z]{3}$/.test(code)) {
+    if (!COUNTRY_CODE_REGEX.test(code)) {
       return c.text("Invalid country code format", 400);
     }
   }

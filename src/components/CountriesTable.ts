@@ -53,6 +53,8 @@ export function renderTable({
           // and unnecessary reactivity cycles when initializing them.
           const formattersCache = {};
 
+          const FORMULA_INJECTION_REGEX = /^[=+\-@]/;
+
           Alpine.data('countriesTable', (initialDataOrId, hasServerData) => ({
             allRows: [], // Initialize empty
             isLoading: !hasServerData,
@@ -315,7 +317,7 @@ export function renderTable({
                 // If a malicious user sets their name to "=CMD|' /C calc'!A0",
                 // Excel would execute it. Prepending a single quote forces Excel
                 // to treat the cell as raw text instead of an executable formula.
-                if (/^[=+\-@]/.test(str)) {
+                if (FORMULA_INJECTION_REGEX.test(str)) {
                   str = "'" + str;
                 }
 

@@ -127,6 +127,8 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
   }
 }
 
+const ISO3_REGEX = /^[A-Z]{3}$/;
+
 // Data is static, embedded as assets
 async function loadCountriesData(): Promise<RawCountry[]> {
   return countriesData as unknown as RawCountry[];
@@ -170,7 +172,7 @@ export function parseGdpData(
     const iso3 = item?.countryiso3code?.toUpperCase() ?? "";
 
     // Ensure strict 3-letter ISO code format to filter out aggregates like "WLD" (World)
-    if (!/^[A-Z]{3}$/.test(iso3)) continue;
+    if (!ISO3_REGEX.test(iso3)) continue;
     if (item.value == null) continue;
     if (allowedCodes && !allowedCodes.has(iso3)) continue;
     if (map.has(iso3)) continue; // Only take the first entry encountered (assuming sorted by latest date by API)
