@@ -9,6 +9,8 @@ import { ChartView } from "./components/ChartView";
 import { getCountryRows } from "./services/api";
 import { rateLimit } from "./middleware/rate-limit";
 
+const COUNTRY_CODE_REGEX = /^[A-Za-z]{3}$/;
+
 const app = new Hono<{ Bindings: Env }>();
 
 app.onError((err, c) => {
@@ -142,7 +144,7 @@ app.get("/chart-data", async (c) => {
 
   // Validate format of country codes
   for (const code of selectedCountries) {
-    if (!/^[A-Za-z]{3}$/.test(code)) {
+    if (!COUNTRY_CODE_REGEX.test(code)) {
       return c.text("Invalid country code format", 400);
     }
   }
@@ -166,8 +168,12 @@ app.get("/chart-data", async (c) => {
   return c.json(chartRows);
 });
 
+app.get("/api/test-error", (c) => {
+  throw new Error("Test error for security checking");
+});
+
 app.all("*", async (c) => {
-  const res = c.env.ASSETS ? await c.env.ASSETS.fetch(c.req.raw) : new Response("Not Found", { status: 404 });
+  const res = c.env && c.env.ASSETS ? await c.env.ASSETS.fetch(c.req.raw) : new Response("Not Found", { status: 404 });
   // Clone response to allow header modification by secureHeaders middleware
   const newRes = new Response(res.body, res);
   return newRes;

@@ -33,8 +33,9 @@ describe("Security Headers", () => {
   });
 
   it("should not leak stack traces on error", async () => {
-    // Trigger the catch-all route which fails because ASSETS is undefined in tests
-    const res = await app.request("/non-existent");
+    // Trigger the catch-all route which fails because ASSETS is undefined in tests, using an explicitly invalid state
+    // Let's explicitly trigger an error instead of a 404
+    const res = await app.request("/api/test-error");
     const text = await res.text();
 
     // In production, we don't want stack traces.
