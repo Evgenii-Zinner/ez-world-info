@@ -23,3 +23,4 @@ blob-report/
 playwright/.cache/
 playwright-report/
 test-results/
+dev_server.log
