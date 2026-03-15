@@ -22,3 +22,7 @@
 **Vulnerability:** N/A (Process Improvement)
 **Learning:** If no critical or high severity vulnerabilities are found during the initial scan, Sentinel should not halt but instead automatically proceed with implementing a security enhancement (e.g., adding timeouts, tightening headers, improving sanitization).
 **Prevention:** This ensures continuous improvement of the codebase's defense-in-depth posture even when obvious flaws are absent.
+## 2025-02-28 - [Missing Standard Rate Limit Headers]
+**Vulnerability:** The rate limit middleware did not expose the current rate limit state to the client (using standard headers like `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`).
+**Learning:** Providing standard rate limit headers allows clients to proactively back off and manage their requests, preventing unintentional server abuse and reducing unnecessary processing of blocked requests.
+**Prevention:** Always include `X-RateLimit-*` headers when implementing rate limiting to improve API transparency and client-side handling.
