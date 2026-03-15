@@ -224,6 +224,10 @@ export function renderTable({
               }
             },
 
+            clearSelection() {
+              this.selected = [];
+            },
+
             toggleSelectAll() {
               const displayedCodes = this.filteredRows.map(r => r.code);
               const allSelected = displayedCodes.every(code => this.selected.includes(code));
@@ -404,6 +408,7 @@ export function renderTable({
         <div class="table-actions-right" style="display: flex; gap: 12px; align-items: center; position: relative;">
              <input type="text" x-model="search" placeholder="Search..." aria-label="Search countries" class="search-input" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: transparent; color: inherit; flex: 1; min-width: 0;">
 
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" x-show="selected.length > 0" @click="clearSelection()" aria-label="Clear selection">❌ Clear</button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="copyShareLink()" x-text="linkCopied ? '✅ Copied!' : '🔗 Copy Link'"></button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" :aria-expanded="showColumnSettings" aria-controls="column-settings-menu" aria-haspopup="menu" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
