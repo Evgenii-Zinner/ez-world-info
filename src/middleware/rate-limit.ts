@@ -34,6 +34,12 @@ export const rateLimit = (config: Partial<RateLimitConfig> = {}) => {
     // Increment request count
     record.count++;
 
+    // Add Rate Limit Headers
+    const remaining = Math.max(0, finalConfig.max - record.count);
+    c.header("X-RateLimit-Limit", finalConfig.max.toString());
+    c.header("X-RateLimit-Remaining", remaining.toString());
+    c.header("X-RateLimit-Reset", Math.ceil(record.resetTime / 1000).toString());
+
     // Check limit
     if (record.count > finalConfig.max) {
       const retryAfter = Math.ceil((record.resetTime - now) / 1000);
