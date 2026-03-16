@@ -613,6 +613,7 @@ export function renderTable({
                     type="checkbox" 
                     :value="row.code"
                     class="country-checkbox"
+                    :aria-label="'Select ' + row.name"
                     :checked="selected.includes(row.code)"
                     @change="toggleSelection(row.code)"
                     />
