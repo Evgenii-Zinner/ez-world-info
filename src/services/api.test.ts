@@ -163,5 +163,105 @@ describe("API Service", () => {
         expect(rows[0].code).toBe("USA");
         expect(rows[0].population).toBe(330000000);
       });
+
+      test("should accept RawCountry array for legacy test support", () => {
+        const countries: CountryEntry[] = [
+            { code: "USA", name: "United States" }
+        ];
+        const gdpMap = new Map<string, GdpEntry>();
+        gdpMap.set("USA", { value: 70000, year: "2022" });
+
+        const rawCountriesArray: RawCountry[] = [
+          {
+            cca3: "USA",
+            name: { common: "United States" },
+            population: 330000000
+          }
+        ];
+
+        const rows = buildRows(countries, gdpMap, rawCountriesArray);
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].code).toBe("USA");
+        expect(rows[0].population).toBe(330000000);
+      });
+
+      test("should map correct exchange rate based on first currency", () => {
+        const countries: CountryEntry[] = [
+            { code: "USA", name: "United States" }
+        ];
+        const gdpMap = new Map<string, GdpEntry>();
+
+        const rawCountryMap = new Map<string, RawCountry>();
+        rawCountryMap.set("USA", {
+          cca3: "USA",
+          name: { common: "United States" },
+          currencies: {
+            "USD": { name: "United States dollar", symbol: "$" }
+          }
+        });
+
+        const exchangeRates = {
+          "EUR": 0.9,
+          "USD": 1.0,
+          "CAD": 1.3
+        };
+
+        const rows = buildRows(countries, gdpMap, rawCountryMap, exchangeRates);
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].currencyRate).toBe(1.0);
+      });
+
+      test("should extract the latest Gini index value", () => {
+        const countries: CountryEntry[] = [
+            { code: "USA", name: "United States" }
+        ];
+        const gdpMap = new Map<string, GdpEntry>();
+
+        const rawCountryMap = new Map<string, RawCountry>();
+        rawCountryMap.set("USA", {
+          cca3: "USA",
+          name: { common: "United States" },
+          gini: {
+            "2018": 41.4,
+            "2020": 39.8,
+            "2019": 41.5
+          }
+        });
+
+        const rows = buildRows(countries, gdpMap, rawCountryMap);
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].gini).toBe(39.8);
+      });
+
+      test("should sort rows correctly by GDP descending, then name ascending", () => {
+        const countries: CountryEntry[] = [
+            { code: "ZMB", name: "Zambia" },
+            { code: "USA", name: "United States" },
+            { code: "AFG", name: "Afghanistan" },
+            { code: "CAN", name: "Canada" },
+            { code: "AUS", name: "Australia" },
+        ];
+
+        const gdpMap = new Map<string, GdpEntry>();
+        gdpMap.set("USA", { value: 70000, year: "2022" });
+        gdpMap.set("CAN", { value: 50000, year: "2022" });
+        gdpMap.set("AUS", { value: 50000, year: "2022" });
+        // ZMB and AFG will have null GDP
+
+        const rawCountryMap = new Map<string, RawCountry>();
+        const rows = buildRows(countries, gdpMap, rawCountryMap);
+
+        expect(rows).toHaveLength(5);
+        expect(rows.map(r => r.code)).toEqual([
+          "USA", // highest GDP
+          "AUS", // tied GDP, A before C
+          "CAN", // tied GDP
+          "AFG", // null GDP, A before Z
+          "ZMB"  // null GDP
+        ]);
+      });
   });
 });
