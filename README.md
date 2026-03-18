@@ -29,8 +29,34 @@ The dashboard provides a tactical overview of 200+ territories with modern visua
     *   **REST Countries:** Precise territory metadata and flags.
     *   **Wikidata:** Rich political and social indicators via SPARQL.
 *   **Client-Side Reactivity:**
-    *   **htmx:** Seamless, zero-JS page transitions.
-    *   **Alpine.js:** Managed country selection and filtering state.
+    *   **Alpine.js:** Managed country selection, local persistence (`localStorage`), and reactive UI updates.
+
+## 🏗️ Architecture Note: JSON Island Pattern
+The project has shifted away from traditional Server-Side Rendered (SSR) HTML partials towards **Client-Side JSON Hydration**.
+When the server responds (e.g. `CountriesTable`), it serializes initial, large datasets into a hidden `<script type="application/json">` block rather than building massive strings of HTML.
+Alpine.js parses this embedded JSON on initialization to provide instant client-side interactivity, avoiding enormous HTML payloads over the wire.
+
+## 🚀 Local Development
+1. **Install Dependencies:**
+   ```bash
+   bun install
+   ```
+   *(Note: Development environments occasionally experience `bun install` timeouts exceeding 400s. Retrying or explicitly fetching missing packages like `hono` is required if tests fail on import.)*
+
+2. **Start the Development Server:**
+   ```bash
+   bun run dev
+   ```
+   This command orchestrates three actions:
+   - `fetch-data`: Queries REST Countries, World Bank API, and Wikidata to generate the static `.json` files in the `public/` directory.
+   - `build:css`: Compiles the internal `styles.scss` source code into browser-ready CSS.
+   - `wrangler dev`: Boots the local Cloudflare Worker simulator on `http://localhost:8787`.
+
+3. **Run Tests:**
+   ```bash
+   bun run test
+   ```
+   This will auto-generate dummy local data (`test:setup`) and run the test suite using `bun:test`.
 
 ## 🖥 Environment
 Perfect for personal intelligence tools or enterprise data dashboards.
