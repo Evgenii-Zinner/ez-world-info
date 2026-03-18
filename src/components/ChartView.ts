@@ -1,4 +1,5 @@
-import { html } from "hono/html";
+import { html, raw } from "hono/html";
+import { escapeHtml } from "../utils/helpers";
 
 export const ChartView = () => {
   return html`
@@ -256,15 +257,7 @@ export const ChartView = () => {
       return baseOption;
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
+    ${raw(escapeHtml.toString())}
 
     function formatValue(val, metric) {
       if (metric === 'gdpPerCapita') return '$' + Number(val).toLocaleString();

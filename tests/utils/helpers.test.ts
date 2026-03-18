@@ -17,6 +17,16 @@ describe("Helpers - escapeHtml", () => {
     expect(escapeHtml("")).toBe("");
   });
 
+  it("should handle null/undefined by returning empty string", () => {
+    expect(escapeHtml(null)).toBe("");
+    expect(escapeHtml(undefined)).toBe("");
+  });
+
+  it("should handle non-string inputs", () => {
+    expect(escapeHtml(123)).toBe("123");
+    expect(escapeHtml(true)).toBe("true");
+  });
+
   it("should handle strings with multiple occurrences of special characters", () => {
     const input = `<script>alert("XSS 'attack' & hack")</script>`;
     const expected = `&lt;script&gt;alert(&quot;XSS &#39;attack&#39; &amp; hack&quot;)&lt;/script&gt;`;
