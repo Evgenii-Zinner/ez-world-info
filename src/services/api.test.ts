@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from "bun:test";
-import { parseCountries, parseGdpData, buildRows, getCountryRows } from "./api";
+import { parseCountries, parseGdpData, buildRows, getCountryRows, fetchExchangeRates, resetMemoryCache } from "./api";
 import type { RawCountry, RawGdpData, CountryEntry, GdpEntry } from "../types";
 
 describe("API Service", () => {
@@ -17,6 +17,44 @@ describe("API Service", () => {
       expect(rows[0]).toHaveProperty("gdpPerCapita");
     });
   });
+
+  describe("resetMemoryCache", () => {
+    test("should clear the memory cache", async () => {
+      const originalFetch = global.fetch;
+      try {
+        const mockRates = { EUR: 0.9 };
+        const updatedRates = { EUR: 0.95 };
+
+        const fetchMock = mock(() => Promise.resolve(new Response(JSON.stringify({ rates: mockRates }))));
+        global.fetch = fetchMock;
+
+        // Reset any existing cache state from previous tests
+        resetMemoryCache();
+
+        // First call - should fetch
+        const result1 = await fetchExchangeRates();
+        expect(result1).toEqual(mockRates);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+
+        // Second call - should use cache
+        fetchMock.mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ rates: updatedRates }))));
+        const result2 = await fetchExchangeRates();
+        expect(result2).toEqual(mockRates); // Still old rates from cache
+        expect(fetchMock).toHaveBeenCalledTimes(1); // No new fetch
+
+        // Reset cache
+        resetMemoryCache();
+
+        // Third call - should fetch again
+        const result3 = await fetchExchangeRates();
+        expect(result3).toEqual(updatedRates); // New rates
+        expect(fetchMock).toHaveBeenCalledTimes(2); // New fetch
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+  });
+
   describe("parseCountries", () => {
     test("should parse valid countries and sort by name", () => {
       const input: RawCountry[] = [
