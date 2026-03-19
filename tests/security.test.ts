@@ -1,5 +1,6 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, mock } from "bun:test";
 import app from "../src/index";
+import * as api from "../src/services/api";
 
 describe("Security Headers", () => {
   it("should have security headers", async () => {
@@ -33,19 +34,29 @@ describe("Security Headers", () => {
   });
 
   it("should not leak stack traces on error", async () => {
-    // Trigger the catch-all route which fails because ASSETS is undefined in tests, using an explicitly invalid state
-    // Let's explicitly trigger an error instead of a 404
-    const res = await app.request("/api/test-error");
-    const text = await res.text();
+    // Verify that the removed endpoint now 404s
+    const res404 = await app.request("/api/test-error");
+    expect(res404.status).toBe(404);
 
-    // In production, we don't want stack traces.
-    // However, Hono might show them by default in some environments or if not configured otherwise.
-    // Let's see what we get.
-    console.log("Error response body:", text);
+    // Mock getCountryRows to throw an error
+    const originalGetCountryRows = api.getCountryRows;
+    // @ts-ignore
+    api.getCountryRows = mock(() => {
+      throw new Error("Simulated production error");
+    });
 
-    expect(res.status).toBe(500);
-    // These assertions will fail if Hono exposes stack traces by default
-    expect(text).not.toContain("at ");
-    expect(text).not.toContain("src/index.ts");
+    try {
+      const res = await app.request("/api/countriesData");
+      const text = await res.text();
+
+      expect(res.status).toBe(500);
+      expect(text).toBe("Internal Server Error");
+      expect(text).not.toContain("at ");
+      expect(text).not.toContain("Simulated production error");
+    } finally {
+      // Restore original function
+      // @ts-ignore
+      api.getCountryRows = originalGetCountryRows;
+    }
   });
 });

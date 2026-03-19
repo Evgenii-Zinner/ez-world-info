@@ -168,10 +168,6 @@ app.get("/chart-data", async (c) => {
   return c.json(chartRows);
 });
 
-app.get("/api/test-error", (c) => {
-  throw new Error("Test error for security checking");
-});
-
 app.all("*", async (c) => {
   const res = c.env && c.env.ASSETS ? await c.env.ASSETS.fetch(c.req.raw) : new Response("Not Found", { status: 404 });
   // Clone response to allow header modification by secureHeaders middleware
