@@ -4,3 +4,7 @@
 ## 2026-05-27 - Focus Visible for Custom Interactive Elements
 **Learning:** When making custom HTML elements (like `<td>`) interactive (e.g., clicking to copy), providing visual feedback for keyboard users without bothering mouse users is crucial.
 **Action:** Always pair `tabindex="0"` with `:focus-visible` styling (rather than just `:focus`) to provide a clear, branded outline (e.g., using `var(--color-secondary)`) specifically for keyboard navigation.
+
+## 2026-05-28 - ARIA State for Custom Toggle Button Groups
+**Learning:** Using simple `active` CSS classes for custom toggle groups (like visual chart styles) hides the selection state from screen readers, leaving them unaware of which option is currently active.
+**Action:** When creating custom toggle buttons, always add `aria-pressed="true"` to the selected button and `aria-pressed="false"` to unselected options, updating these attributes dynamically via JavaScript alongside the visual CSS class. Pair this with `:focus-visible` styling using design system colors for robust keyboard accessibility.
