@@ -1,4 +1,4 @@
-import { describe, it, expect, mock } from "bun:test";
+import { describe, it, expect, spyOn } from "bun:test";
 import app from "../src/index";
 import * as api from "../src/services/api";
 
@@ -8,6 +8,8 @@ describe("Security Headers", () => {
     expect(res.headers.get("X-Frame-Options")).toBe("DENY");
     expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(res.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
+    expect(res.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+    expect(res.headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
 
     // Check CSP presence and tightness
     const csp = res.headers.get("Content-Security-Policy");
@@ -39,9 +41,7 @@ describe("Security Headers", () => {
     expect(res404.status).toBe(404);
 
     // Mock getCountryRows to throw an error
-    const originalGetCountryRows = api.getCountryRows;
-    // @ts-ignore
-    api.getCountryRows = mock(() => {
+    const spy = spyOn(api, "getCountryRows").mockImplementation(async () => {
       throw new Error("Simulated production error");
     });
 
@@ -55,8 +55,7 @@ describe("Security Headers", () => {
       expect(text).not.toContain("Simulated production error");
     } finally {
       // Restore original function
-      // @ts-ignore
-      api.getCountryRows = originalGetCountryRows;
+      spy.mockRestore();
     }
   });
 });

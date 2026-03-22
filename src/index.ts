@@ -25,6 +25,8 @@ app.use(
     xFrameOptions: "DENY",
     xContentTypeOptions: "nosniff",
     referrerPolicy: "strict-origin-when-cross-origin",
+    crossOriginOpenerPolicy: "same-origin",
+    crossOriginResourcePolicy: "same-origin",
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
       objectSrc: ["'none'"],
