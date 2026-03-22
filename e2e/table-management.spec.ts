@@ -49,11 +49,20 @@ test.describe('Global Data Dashboard - Table Management', () => {
 
     // 5. Export CSV
     // Wait for the download event
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: /⬇️ Export CSV/i }).click();
-    const download = await downloadPromise;
+    const downloadCsvPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /⬇️ CSV/i }).click();
+    const downloadCsv = await downloadCsvPromise;
 
     // Verify the downloaded file name matches expected pattern
-    expect(download.suggestedFilename()).toMatch(/world_data_export_.*\.csv/);
+    expect(downloadCsv.suggestedFilename()).toMatch(/world_data_export_.*\.csv/);
+
+    // 6. Export JSON
+    // Wait for the download event
+    const downloadJsonPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /⬇️ JSON/i }).click();
+    const downloadJson = await downloadJsonPromise;
+
+    // Verify the downloaded file name matches expected pattern
+    expect(downloadJson.suggestedFilename()).toMatch(/world_data_export_.*\.json/);
   });
 });
