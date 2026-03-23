@@ -8,10 +8,10 @@ export const ChartView = () => {
       <div class="control-group">
         <label>Visual Style:</label>
         <div class="style-buttons">
-          <button class="style-btn active" data-style="bar" onclick="switchChartStyle('bar')">📊 Bar</button>
-          <button class="style-btn" data-style="rose" onclick="switchChartStyle('rose')">🌹 Rose</button>
-          <button class="style-btn" data-style="bubble" onclick="switchChartStyle('bubble')">🫧 Bubble</button>
-          <button class="style-btn" data-style="treemap" onclick="switchChartStyle('treemap')">🗺️ Map</button>
+          <button class="style-btn active" aria-pressed="true" data-style="bar" onclick="switchChartStyle('bar')">📊 Bar</button>
+          <button class="style-btn" aria-pressed="false" data-style="rose" onclick="switchChartStyle('rose')">🌹 Rose</button>
+          <button class="style-btn" aria-pressed="false" data-style="bubble" onclick="switchChartStyle('bubble')">🫧 Bubble</button>
+          <button class="style-btn" aria-pressed="false" data-style="treemap" onclick="switchChartStyle('treemap')">🗺️ Map</button>
         </div>
       </div>
 
@@ -275,9 +275,15 @@ export const ChartView = () => {
 
     function switchChartStyle(style) {
       currentChartStyle = style;
-      document.querySelectorAll(".style-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".style-btn").forEach(btn => {
+        btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
+      });
       const btn = document.querySelector('[data-style="' + style + '"]');
-      if (btn) btn.classList.add("active");
+      if (btn) {
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+      }
       renderChart();
     }
 

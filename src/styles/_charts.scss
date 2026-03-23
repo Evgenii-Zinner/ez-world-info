@@ -76,6 +76,15 @@
             color: $light-text-primary;
         }
     }
+
+    &:focus-visible {
+        outline: 2px solid $neon-cyan;
+        outline-offset: -2px;
+
+        .theme-light & {
+            outline-color: $light-neon-primary;
+        }
+    }
 }
 
 .selection-notice {
