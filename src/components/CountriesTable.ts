@@ -303,9 +303,40 @@ export function renderTable({
               return val.toFixed(2);
             },
 
-            exportCSV() {
+            getExportData() {
               const rows = this.filteredRows;
-              if (!rows || rows.length === 0) return;
+              if (!rows || rows.length === 0) return null;
+
+              const getLanguage = (row) => {
+                if (row.languages && Object.keys(row.languages).length > 0) {
+                  return Object.values(row.languages).slice(0, 2).join(', ');
+                }
+                return row.officialLanguage || '';
+              };
+
+              const getStatus = (row) => {
+                return row.parentCountry || (row.independent ? 'Independent' : 'Dependent');
+              };
+
+              return rows.map(row => ({
+                name: row.name,
+                code: row.code,
+                population: row.population,
+                area: row.area,
+                currencyRate: row.currencyRate,
+                language: getLanguage(row),
+                gdpPerCapita: row.gdpPerCapita,
+                gdpTotal: row.gdpTotal,
+                gini: row.gini,
+                internetUsers: row.internetUsers,
+                urbanPopulation: row.urbanPopulation,
+                status: getStatus(row)
+              }));
+            },
+
+            exportCSV() {
+              const exportData = this.getExportData();
+              if (!exportData) return;
 
               const headers = [
                 'Country', 'Code', 'Population', 'Area (km²)', 'Currency Rate (USD)',
@@ -331,40 +362,41 @@ export function renderTable({
                 return str;
               };
 
-              const getLanguage = (row) => {
-                if (row.languages && Object.keys(row.languages).length > 0) {
-                  return Object.values(row.languages).slice(0, 2).join(', ');
-                }
-                return row.officialLanguage || '';
-              };
-
-              const getStatus = (row) => {
-                return row.parentCountry || (row.independent ? 'Independent' : 'Dependent');
-              };
-
               const csvContent = [
                 headers.join(','),
-                ...rows.map(row => [
+                ...exportData.map(row => [
                   escape(row.name),
                   escape(row.code),
                   escape(row.population),
                   escape(row.area),
                   escape(row.currencyRate),
-                  escape(getLanguage(row)),
+                  escape(row.language),
                   escape(row.gdpPerCapita),
                   escape(row.gdpTotal),
                   escape(row.gini),
                   escape(row.internetUsers),
                   escape(row.urbanPopulation),
-                  escape(getStatus(row))
+                  escape(row.status)
                 ].join(','))
               ].join('\\n');
 
-              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              this.downloadFile(csvContent, 'text/csv;charset=utf-8;', 'csv');
+            },
+
+            exportJSON() {
+              const exportData = this.getExportData();
+              if (!exportData) return;
+
+              const jsonContent = JSON.stringify(exportData, null, 2);
+              this.downloadFile(jsonContent, 'application/json;charset=utf-8;', 'json');
+            },
+
+            downloadFile(content, mimeType, extension) {
+              const blob = new Blob([content], { type: mimeType });
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");
               link.setAttribute("href", url);
-              link.setAttribute("download", 'world_data_export_' + new Date().toISOString().slice(0,10) + '.csv');
+              link.setAttribute("download", 'world_data_export_' + new Date().toISOString().slice(0,10) + '.' + extension);
               link.style.visibility = 'hidden';
               document.body.appendChild(link);
               link.click();
@@ -410,7 +442,8 @@ export function renderTable({
 
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" x-show="selected.length > 0" @click="clearSelection()" aria-label="Clear selection">❌ Clear</button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="copyShareLink()" x-text="linkCopied ? '✅ Copied!' : '🔗 Copy Link'"></button>
-            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ Export CSV</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportCSV()">⬇️ CSV</button>
+            <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" @click="exportJSON()">⬇️ JSON</button>
             <button class="btn-column-settings" style="white-space: nowrap; flex-shrink: 0; min-width: max-content;" :aria-expanded="showColumnSettings" aria-controls="column-settings-menu" aria-haspopup="menu" @click="showColumnSettings = !showColumnSettings">⚙️ Columns</button>
             
             <div id="column-settings-menu" x-show="showColumnSettings" @click.outside="showColumnSettings = false" class="column-settings-panel" style="display: none;">
