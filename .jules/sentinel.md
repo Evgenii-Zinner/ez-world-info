@@ -26,3 +26,7 @@
 **Vulnerability:** The rate limit middleware did not expose the current rate limit state to the client (using standard headers like `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`).
 **Learning:** Providing standard rate limit headers allows clients to proactively back off and manage their requests, preventing unintentional server abuse and reducing unnecessary processing of blocked requests.
 **Prevention:** Always include `X-RateLimit-*` headers when implementing rate limiting to improve API transparency and client-side handling.
+## 2026-03-22 - [Missing Cross-Origin Resource Policies]
+**Vulnerability:** The application was missing Cross-Origin Opener Policy (COOP) and Cross-Origin Resource Policy (CORP) headers.
+**Learning:** Even with CSP and basic headers, modern web applications can be vulnerable to cross-origin information leaks (like Spectre or Meltdown). Explicitly isolating the origin restricts other domains from opening the application in a popup or embedding its resources.
+**Prevention:** Always include `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Resource-Policy: same-origin` headers to provide defense-in-depth against cross-origin attacks.
