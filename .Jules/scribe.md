@@ -13,3 +13,6 @@
 ## 2024-05-19 -
 **Learning:** The application architecture shifted from Server-Side Rendered (SSR) HTML partials (like the removed `htmx` endpoints) to Client-Side JSON Hydration. Large sets of tabular data are now sent to Alpine.js via a `<script type="application/json">` block (JSON Island Pattern) rather than massive HTML payloads, massively improving layout rendering performance.
 **Action:** Removed outdated references to `htmx` in `README.md` and added an explicit architectural warning explaining the shift to the JSON Island pattern.
+## 2025-03-25 -
+**Learning:** The `escapeHtml` utility in `src/utils/helpers.ts` strictly coerces falsy values to empty strings instead of stringifying them. This means `escapeHtml(0)` or `escapeHtml(false)` will return `""` instead of `"0"` or `"false"`. Developers relying on this for numeric data (e.g. `gdp` or `population` containing `0`) must be cautious, as valid zeros will be rendered invisible.
+**Action:** Documented the exact type coercion and state implications of the `escapeHtml` function with a JSDoc warning block and examples.
