@@ -8,3 +8,6 @@
 ## 2026-05-28 - ARIA State for Custom Toggle Button Groups
 **Learning:** Using simple `active` CSS classes for custom toggle groups (like visual chart styles) hides the selection state from screen readers, leaving them unaware of which option is currently active.
 **Action:** When creating custom toggle buttons, always add `aria-pressed="true"` to the selected button and `aria-pressed="false"` to unselected options, updating these attributes dynamically via JavaScript alongside the visual CSS class. Pair this with `:focus-visible` styling using design system colors for robust keyboard accessibility.
+## 2026-05-29 - Semantic Active States in Navigation
+**Learning:** Using only visual CSS classes (like `active`) for navigation links leaves screen readers unaware of the user's current context within the application hierarchy.
+**Action:** Always pair visual active navigation states with `aria-current="page"` (or appropriate token like "location") and dynamically update it alongside the CSS class.

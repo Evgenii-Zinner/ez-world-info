@@ -35,8 +35,10 @@ export const Navbar = () => {
           
           document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
+            link.removeAttribute('aria-current');
             if (link.dataset.tab === currentTab) {
               link.classList.add('active');
+              link.setAttribute('aria-current', 'page');
             }
           });
         };
