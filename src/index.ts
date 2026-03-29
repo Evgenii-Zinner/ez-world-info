@@ -128,16 +128,18 @@ app.get("/chart", async (c) => {
 });
 
 app.get("/chart-data", async (c) => {
-  const selectedParam = c.req.query("selected");
+  const selectedQueries = c.req.queries("selected") || [];
 
   // Validate input length to prevent DoS (memory exhaustion)
-  if (selectedParam && selectedParam.length > 500) {
+  const totalLength = selectedQueries.reduce((sum, q) => sum + q.length, 0);
+  if (totalLength > 500) {
     return c.text("Request URI too long", 414);
   }
 
-  const selectedCountries = selectedParam
-    ? selectedParam.split(",").map((s) => s.trim())
-    : [];
+  const selectedCountries = selectedQueries
+    .flatMap((q) => q.split(","))
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   // Limit number of selected countries
   if (selectedCountries.length > 50) {

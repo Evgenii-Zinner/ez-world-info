@@ -30,3 +30,7 @@
 **Vulnerability:** The application was missing Cross-Origin Opener Policy (COOP) and Cross-Origin Resource Policy (CORP) headers.
 **Learning:** Even with CSP and basic headers, modern web applications can be vulnerable to cross-origin information leaks (like Spectre or Meltdown). Explicitly isolating the origin restricts other domains from opening the application in a popup or embedding its resources.
 **Prevention:** Always include `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Resource-Policy: same-origin` headers to provide defense-in-depth against cross-origin attacks.
+## 2024-05-24 - [Hono Query Parameter Pollution]
+**Vulnerability:** The `/chart-data` endpoint used `c.req.query('selected')` to validate input length and limit the number of selected countries (DoS prevention). However, `c.req.query` only processes the first occurrence of a query parameter when multiple instances of the same key are provided (e.g., `?selected=USA&selected=FRA`). This allowed an attacker to bypass length and count restrictions by passing hundreds of individual `selected=...` parameters, potentially causing memory exhaustion.
+**Learning:** In Hono, `c.req.query` is vulnerable to HTTP Parameter Pollution (HPP) when used for validation logic that expects a single string but might receive an array of values. It silently ignores subsequent parameters.
+**Prevention:** Always use `c.req.queries('param')` when validating input bounds (length, count) on query parameters that might be provided multiple times, ensuring all instances are aggregated and validated.
