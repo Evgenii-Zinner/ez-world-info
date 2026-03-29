@@ -65,4 +65,38 @@ test.describe('Global Data Dashboard - Table Management', () => {
     // Verify the downloaded file name matches expected pattern
     expect(downloadJson.suggestedFilename()).toMatch(/world_data_export_.*\.json/);
   });
+
+  test('table displays aggregate data summary row', async ({ page }) => {
+    // 1. Navigate to the main page
+    await page.goto('/');
+
+    // 2. Wait for data to load
+    await expect(page.locator('.status')).not.toHaveText(/Loading Data/i, { timeout: 10000 });
+    await expect(page.locator('.table-container tbody tr').first()).toBeVisible();
+
+    // 3. Check for the presence of the summary row
+    const summaryRow = page.locator('tfoot tr.summary-row');
+    await expect(summaryRow).toBeVisible();
+
+    // 4. Verify it contains "Total"
+    await expect(summaryRow.locator('td').filter({ hasText: 'Total' })).toBeVisible();
+
+    // 5. Filter the table to specific countries to verify the summary updates
+    const searchInput = page.getByPlaceholder(/Search.../i);
+    await searchInput.fill('Japan');
+
+    // Wait for the filtered results. Japan should be visible in the table.
+    const japanRow = page.getByRole('cell', { name: 'Japan', exact: true }).first();
+    await expect(japanRow).toBeVisible();
+
+    // Ensure only one row is visible
+    await expect(page.locator('.table-container tbody tr:visible')).toHaveCount(1);
+
+    // Japan population is roughly 125,122,000 (depending on test data).
+    // Let's just verify the summary row population cell isn't empty and has numbers.
+    const summaryPopulationCell = summaryRow.locator('td').nth(3); // 4th column
+    await expect(summaryPopulationCell).not.toBeEmpty();
+    const summaryText = await summaryPopulationCell.innerText();
+    expect(summaryText).toMatch(/[0-9,]+/);
+  });
 });

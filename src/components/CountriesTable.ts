@@ -136,6 +136,22 @@ export function renderTable({
               }
             },
 
+            get summary() {
+              const rows = this.filteredRows;
+              let population = 0;
+              let area = 0;
+              let gdpTotal = 0;
+
+              for (let i = 0; i < rows.length; i++) {
+                const r = rows[i];
+                if (r.population) population += r.population;
+                if (r.area) area += r.area;
+                if (r.gdpTotal) gdpTotal += r.gdpTotal;
+              }
+
+              return { population, area, gdpTotal };
+            },
+
             get filteredRows() {
               let result = this.allRows;
 
@@ -710,6 +726,24 @@ export function renderTable({
              <td colspan="14" style="text-align: center; padding: 20px; color: #888;">No countries found matching your criteria.</td>
            </tr>
         </tbody>
+        <tfoot x-show="!isLoading && filteredRows.length > 0">
+          <tr class="summary-row">
+            <td></td>
+            <td x-show="!hiddenColumns.includes('col-country')">Total</td>
+            <td x-show="!hiddenColumns.includes('col-code')"></td>
+            <td x-show="!hiddenColumns.includes('col-population')" x-text="formatNumber(summary.population)"></td>
+            <td x-show="!hiddenColumns.includes('col-area')" x-text="formatNumber(summary.area)"></td>
+            <td x-show="!hiddenColumns.includes('col-currencies')"></td>
+            <td x-show="!hiddenColumns.includes('col-language')"></td>
+            <td x-show="!hiddenColumns.includes('col-gdp')"></td>
+            <td x-show="!hiddenColumns.includes('col-gdp-total')" x-text="formatCompact(summary.gdpTotal)"></td>
+            <td x-show="!hiddenColumns.includes('col-gini')"></td>
+            <td x-show="!hiddenColumns.includes('col-internet')"></td>
+            <td x-show="!hiddenColumns.includes('col-urban')"></td>
+            <td x-show="!hiddenColumns.includes('col-status')"></td>
+            <td x-show="!hiddenColumns.includes('col-flag')"></td>
+          </tr>
+        </tfoot>
       </table>
     </div>`;
 }
