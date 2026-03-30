@@ -72,20 +72,29 @@ export function renderTable({
             copiedCode: null,
             linkCopied: false,
 
+            /** @param {any[]} rows */
+            _prepareRows(rows) {
+              return rows.map(/** @param {any} row */ row => ({
+                ...row,
+                _lowerName: row.name ? row.name.toLowerCase() : null,
+                _lowerCode: row.code ? row.code.toLowerCase() : null
+              }));
+            },
+
             async init() {
               // Initialize data safely
               if (typeof initialDataOrId === 'string') {
                 const el = document.getElementById(initialDataOrId);
                 if (el) {
                   try {
-                    this.allRows = JSON.parse(el.textContent);
+                    this.allRows = this._prepareRows(JSON.parse(el.textContent));
                   } catch(e) {
                     console.error('Failed to parse initial data', e);
                   }
                 }
               } else {
                  // Legacy or direct array support
-                 this.allRows = initialDataOrId || [];
+                 this.allRows = this._prepareRows(initialDataOrId || []);
               }
 
               // Check URL for filter param
@@ -108,7 +117,7 @@ export function renderTable({
               const cached = sessionStorage.getItem('countriesData');
               if (cached) {
                 try {
-                  this.allRows = JSON.parse(cached);
+                  this.allRows = this._prepareRows(JSON.parse(cached));
                   this.isLoading = false;
                   return;
                 } catch (e) {
@@ -122,12 +131,12 @@ export function renderTable({
                 const res = await fetch('/api/countriesData');
                 if (!res.ok) throw new Error('Failed to load data');
                 const data = await res.json();
-                this.allRows = data;
                 try {
                     sessionStorage.setItem('countriesData', JSON.stringify(data));
                 } catch (e) {
                     console.warn('Failed to save to sessionStorage (quota exceeded?)', e);
                 }
+                this.allRows = this._prepareRows(data);
               } catch (err) {
                 console.error(err);
                 // Handle error state if needed
@@ -143,8 +152,8 @@ export function renderTable({
               if (this.search) {
                 const lowerSearch = this.search.toLowerCase();
                 result = result.filter(r => 
-                  (r.name && r.name.toLowerCase().includes(lowerSearch)) || 
-                  (r.code && r.code.toLowerCase().includes(lowerSearch))
+                  (r._lowerName && r._lowerName.includes(lowerSearch)) ||
+                  (r._lowerCode && r._lowerCode.includes(lowerSearch))
                 );
               }
 
