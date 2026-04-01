@@ -1,4 +1,11 @@
-import type { Env, CountryEntry, GdpEntry, CountryRow, RawCountry, RawGdpData } from "../types";
+import type {
+  Env,
+  CountryEntry,
+  GdpEntry,
+  CountryRow,
+  RawCountry,
+  RawGdpData,
+} from "../types";
 import countriesData from "../../public/countries.json";
 import gdpData from "../../public/gdp.json";
 import territoriesMapping from "../../public/territories.json";
@@ -35,7 +42,7 @@ const CACHE_TTL = 86400; // 24 hours in seconds
 // Simple in-memory cache for local development
 let memoryCache: { data: Record<string, number> | null; timestamp: number } = {
   data: null,
-  timestamp: 0
+  timestamp: 0,
 };
 
 // Module-level cache for static data
@@ -64,7 +71,9 @@ const EXCLUDED_CODES = new Set(["ATA", "IOT"]);
  * @param env - The Cloudflare Worker environment (containing KV bindings)
  * @returns A map of currency codes to exchange rates (relative to USD)
  */
-export async function fetchExchangeRates(env?: Env): Promise<Record<string, number>> {
+export async function fetchExchangeRates(
+  env?: Env,
+): Promise<Record<string, number>> {
   try {
     // Try to get from KV cache if available
     if (env?.EZ_WORLD_INFO_KV) {
@@ -76,7 +85,7 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
     } else {
       // Fallback to memory cache for local development
       const now = Date.now();
-      if (memoryCache.data && (now - memoryCache.timestamp) < (CACHE_TTL * 1000)) {
+      if (memoryCache.data && now - memoryCache.timestamp < CACHE_TTL * 1000) {
         console.log("✓ Using memory cached exchange rates (local dev)");
         return memoryCache.data;
       }
@@ -93,20 +102,20 @@ export async function fetchExchangeRates(env?: Env): Promise<Record<string, numb
     let response;
     try {
       response = await fetch(EXCHANGE_RATE_URL, {
-        signal: controller.signal
+        signal: controller.signal,
       });
     } finally {
       clearTimeout(timeoutId);
     }
 
-    const data = await response.json() as { rates: Record<string, number> };
+    const data = (await response.json()) as { rates: Record<string, number> };
     const rates = data.rates;
     console.log("✓ Fetched fresh exchange rates");
 
     // Cache the result
     if (env?.EZ_WORLD_INFO_KV) {
       await env.EZ_WORLD_INFO_KV.put(CACHE_KEY, JSON.stringify(rates), {
-        expirationTtl: CACHE_TTL
+        expirationTtl: CACHE_TTL,
       });
       console.log("✓ Saved to KV cache");
     } else {
@@ -143,25 +152,34 @@ async function loadGdpData(): Promise<RawGdpData> {
  */
 export function parseCountries(parsed: RawCountry[]): CountryEntry[] {
   return parsed
-    .filter((country) => country.cca3 && country.name?.common && !EXCLUDED_CODES.has(country.cca3))
+    .filter(
+      (country) =>
+        country.cca3 &&
+        country.name?.common &&
+        !EXCLUDED_CODES.has(country.cca3),
+    )
     .map((country) => ({
       code: country.cca3 as string,
-      name: country.name?.common as string
+      name: country.name?.common as string,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
- * Parses GDP data from the World Bank API format.
+ * Unpacks and sanitizes GDP data obtained from the idiosyncratic World Bank API format.
  *
- * @param parsed - Raw JSON from World Bank API.
- *                 Format is `[metadata, data[]]`.
- * @param allowedCodes - Optional Set of ISO3 codes to keep.
- * @returns Map of ISO3 code -> GdpEntry
+ * @example
+ * // The API sends data as a two-element array: [ { metadata }, [ ...data items ] ]
+ * const map = parseGdpData([ { page: 1 }, [ { countryiso3code: 'USA', value: 76000, date: '2023' } ] ]);
+ * // Returns Map { 'USA' => { value: 76000, year: '2023' } }
+ *
+ * @param parsed - The raw, structurally unique JSON array directly from the World Bank API.
+ * @param allowedCodes - Whitelist of active 3-letter ISO codes (filters out region aggregates like 'WLD' for World).
+ * @returns Map matching each valid ISO3 string code to its associated `GdpEntry`.
  */
 export function parseGdpData(
   parsed: RawGdpData,
-  allowedCodes?: Set<string>
+  allowedCodes?: Set<string>,
 ): Map<string, GdpEntry> {
   // World Bank API returns an array where index 1 is the actual data list
   const entries =
@@ -179,7 +197,7 @@ export function parseGdpData(
 
     map.set(iso3, {
       value: item.value,
-      year: item.date ?? ""
+      year: item.date ?? "",
     });
   }
 
@@ -192,12 +210,16 @@ export function parseGdpData(
  */
 async function getStaticData() {
   if (cachedCountries && cachedGdpMap && cachedDetailsMap) {
-    return { countries: cachedCountries, gdpMap: cachedGdpMap, detailsMap: cachedDetailsMap };
+    return {
+      countries: cachedCountries,
+      gdpMap: cachedGdpMap,
+      detailsMap: cachedDetailsMap,
+    };
   }
 
   const [countriesRaw, gdpRaw] = await Promise.all([
     loadCountriesData(),
-    loadGdpData()
+    loadGdpData(),
   ]);
 
   const countries = parseCountries(countriesRaw);
@@ -219,24 +241,33 @@ async function getStaticData() {
 }
 
 /**
- * Merges all data sources into the final tabular format.
+ * Merges all distinct data sources (REST Countries, World Bank GDP, Wikidata, and live Exchange Rates)
+ * into a single flattened array of `CountryRow` structures. This output serves as the
+ * single source of truth for rendering the UI table.
  *
- * Logic includes:
- * - Mapping exchange rates to the country's first listed currency.
- * - Sorting Gini index data by year to find the most recent value.
- * - Resolving parent countries for dependent territories.
- * - Sorting the final list by GDP per Capita (descending).
+ * Business Logic Highlights:
+ * - Iterates over available currencies and arbitrarily selects the first declared currency to resolve its exchange rate.
+ * - Parses historical Gini indices to dynamically resolve the most recently recorded index value without sorting arrays.
+ * - Automatically resolves and assigns 'Parent Country' names for dependent territories based on local mapping.
+ * - Pre-sorts the final list primarily by GDP per Capita (highest first) to provide an immediately actionable dashboard view.
+ *
+ * @param countries - Array of simplified country entities mapped from REST Countries.
+ * @param gdpMap - Dictionary of ISO-3 code -> GDP values parsed from the World Bank API.
+ * @param countriesRawOrMap - Source metadata mapping used to extract deep properties (area, population, flags, independent status).
+ * @param exchangeRates - Up-to-date currency conversion rates (base USD).
+ * @returns An array of flattened objects ready for immediate client-side JSON serialization and rendering.
  */
 export function buildRows(
   countries: CountryEntry[],
   gdpMap: Map<string, GdpEntry>,
   countriesRawOrMap?: RawCountry[] | Map<string, RawCountry>,
-  exchangeRates?: Record<string, number>
+  exchangeRates?: Record<string, number>,
 ): CountryRow[] {
   // Use provided map or build it from array (legacy/test support)
-  const countryDetailsMap = countriesRawOrMap instanceof Map
-    ? countriesRawOrMap
-    : new Map<string, RawCountry>();
+  const countryDetailsMap =
+    countriesRawOrMap instanceof Map
+      ? countriesRawOrMap
+      : new Map<string, RawCountry>();
 
   if (!(countriesRawOrMap instanceof Map) && countriesRawOrMap) {
     countriesRawOrMap.forEach((country) => {
@@ -267,11 +298,11 @@ export function buildRows(
       let latestVal: number | undefined;
 
       for (const yearStr in details.gini) {
-          const year = parseInt(yearStr);
-          if (year > maxYear) {
-              maxYear = year;
-              latestVal = details.gini[yearStr];
-          }
+        const year = parseInt(yearStr);
+        if (year > maxYear) {
+          maxYear = year;
+          latestVal = details.gini[yearStr];
+        }
       }
       giniValue = latestVal;
     }
@@ -295,19 +326,23 @@ export function buildRows(
       flagSvg: details?.flags?.svg,
       independent: details?.independent,
       unMember: details?.unMember,
-      parentCountry: details?.independent === false 
-        ? (territoriesMapping as Record<string, string>)[country.code]
-        : undefined,
-      officialLanguage: (wikidataMapping as Record<string, any>)[country.code]?.officialLanguage
+      parentCountry:
+        details?.independent === false
+          ? (territoriesMapping as Record<string, string>)[country.code]
+          : undefined,
+      officialLanguage: (wikidataMapping as Record<string, any>)[country.code]
+        ?.officialLanguage,
     };
   });
 
   // Default Sort: GDP Per Capita (Descending), then Name (Ascending)
   rows.sort((a, b) => {
-    if (a.gdpPerCapita === null && b.gdpPerCapita === null) return a.name.localeCompare(b.name);
+    if (a.gdpPerCapita === null && b.gdpPerCapita === null)
+      return a.name.localeCompare(b.name);
     if (a.gdpPerCapita === null) return 1; // Nulls last
     if (b.gdpPerCapita === null) return -1; // Nulls last
-    if (b.gdpPerCapita !== a.gdpPerCapita) return b.gdpPerCapita - a.gdpPerCapita;
+    if (b.gdpPerCapita !== a.gdpPerCapita)
+      return b.gdpPerCapita - a.gdpPerCapita;
 
     return a.name.localeCompare(b.name);
   });
@@ -325,7 +360,7 @@ export function buildRows(
 export async function getCountryRows(env?: Env): Promise<CountryRow[]> {
   const [staticData, exchangeRates] = await Promise.all([
     getStaticData(),
-    fetchExchangeRates(env)
+    fetchExchangeRates(env),
   ]);
 
   const { countries, gdpMap, detailsMap } = staticData;

@@ -23,10 +23,22 @@ export type RawGdpItem = {
   date?: string;
 };
 
-export type RawGdpData = [
-  unknown,
-  Array<RawGdpItem>
-];
+/**
+ * Represents the raw response structure from the World Bank API.
+ *
+ * Note: The World Bank API uses a highly unconventional response format where
+ * the root object is an array containing exactly two elements:
+ * 1. Pagination/Metadata object (ignored in our implementation)
+ * 2. An array of actual data items
+ *
+ * @example
+ * // Typical response looks like:
+ * [
+ *   { "page": 1, "pages": 1, "per_page": 20000, "total": 266 },
+ *   [ { "countryiso3code": "AFE", "value": 1636, ... }, ... ]
+ * ]
+ */
+export type RawGdpData = [unknown, Array<RawGdpItem>];
 
 export type CountryEntry = {
   code: string;
