@@ -72,20 +72,39 @@ export function renderTable({
             copiedCode: null,
             linkCopied: false,
 
+            _prepareRows(rows) {
+              return rows.map(r => ({
+                ...r,
+                // Map missing source values to null to preserve "nulls at bottom" sorting
+                gdpPerCapita: r.gdpPerCapita ?? null,
+                population: r.population ?? null,
+                area: r.area ?? null,
+                currencyRate: r.currencyRate ?? null,
+                gdpTotal: r.gdpTotal ?? null,
+                gini: r.gini ?? null,
+                internetUsers: r.internetUsers ?? null,
+                urbanPopulation: r.urbanPopulation ?? null,
+                // Pre-compute lowercase strings for O(1) filtering/sorting
+                _lowerName: r.name ? r.name.toLowerCase() : '',
+                _lowerCode: r.code ? r.code.toLowerCase() : '',
+                _lowerOfficialLanguage: r.officialLanguage ? r.officialLanguage.toLowerCase() : ''
+              }));
+            },
+
             async init() {
               // Initialize data safely
               if (typeof initialDataOrId === 'string') {
                 const el = document.getElementById(initialDataOrId);
                 if (el) {
                   try {
-                    this.allRows = JSON.parse(el.textContent);
+                    this.allRows = this._prepareRows(JSON.parse(el.textContent));
                   } catch(e) {
                     console.error('Failed to parse initial data', e);
                   }
                 }
               } else {
                  // Legacy or direct array support
-                 this.allRows = initialDataOrId || [];
+                 this.allRows = this._prepareRows(initialDataOrId || []);
               }
 
               // Check URL for filter param
@@ -108,7 +127,7 @@ export function renderTable({
               const cached = sessionStorage.getItem('countriesData');
               if (cached) {
                 try {
-                  this.allRows = JSON.parse(cached);
+                  this.allRows = this._prepareRows(JSON.parse(cached));
                   this.isLoading = false;
                   return;
                 } catch (e) {
@@ -122,7 +141,7 @@ export function renderTable({
                 const res = await fetch('/api/countriesData');
                 if (!res.ok) throw new Error('Failed to load data');
                 const data = await res.json();
-                this.allRows = data;
+                this.allRows = this._prepareRows(data);
                 try {
                     sessionStorage.setItem('countriesData', JSON.stringify(data));
                 } catch (e) {
@@ -143,8 +162,8 @@ export function renderTable({
               if (this.search) {
                 const lowerSearch = this.search.toLowerCase();
                 result = result.filter(r => 
-                  (r.name && r.name.toLowerCase().includes(lowerSearch)) || 
-                  (r.code && r.code.toLowerCase().includes(lowerSearch))
+                  (r._lowerName && r._lowerName.includes(lowerSearch)) ||
+                  (r._lowerCode && r._lowerCode.includes(lowerSearch))
                 );
               }
 
@@ -164,7 +183,17 @@ export function renderTable({
                   if (valA === null || valA === undefined) return 1;
                   if (valB === null || valB === undefined) return -1;
 
-                  if (typeof valA === 'string') {
+                  // Use pre-computed lowercase fields if available
+                  if (this.sortBy === 'name') {
+                    valA = a._lowerName;
+                    valB = b._lowerName;
+                  } else if (this.sortBy === 'code') {
+                    valA = a._lowerCode;
+                    valB = b._lowerCode;
+                  } else if (this.sortBy === 'officialLanguage') {
+                    valA = a._lowerOfficialLanguage;
+                    valB = b._lowerOfficialLanguage;
+                  } else if (typeof valA === 'string') {
                     valA = valA.toLowerCase();
                     valB = valB.toLowerCase();
                   }
