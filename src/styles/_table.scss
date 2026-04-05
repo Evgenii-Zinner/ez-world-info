@@ -451,3 +451,18 @@ th.sort-desc {
     border-color: var(--color-secondary) transparent transparent transparent;
   }
 }
+
+
+// ============================================================================
+// TABLE AGGREGATES
+// ============================================================================
+
+.table-aggregates {
+  background: var(--color-bgLight);
+  font-weight: bold;
+  border-top: 2px solid var(--color-secondary);
+
+  td {
+    color: var(--color-secondary);
+  }
+}

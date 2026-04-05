@@ -136,7 +136,25 @@ export function renderTable({
               }
             },
 
+
+            get aggregates() {
+              if (!this._aggregatesCache) {
+                  const rows = this.filteredRows;
+                  let pop = 0;
+                  let area = 0;
+                  let gdp = 0;
+                  for (const r of rows) {
+                    if (r.population) pop += r.population;
+                    if (r.area) area += r.area;
+                    if (r.gdpTotal) gdp += r.gdpTotal;
+                  }
+                  this._aggregatesCache = { population: pop, area: area, gdpTotal: gdp };
+              }
+              return this._aggregatesCache;
+            },
+
             get filteredRows() {
+              this._aggregatesCache = null;
               let result = this.allRows;
 
               // 1. Text Search
@@ -710,6 +728,25 @@ export function renderTable({
              <td colspan="14" style="text-align: center; padding: 20px; color: #888;">No countries found matching your criteria.</td>
            </tr>
         </tbody>
+
+        <tfoot class="table-aggregates" x-show="!isLoading && filteredRows.length > 0">
+          <tr>
+            <td></td>
+            <td x-show="!hiddenColumns.includes('col-country')">Totals</td>
+            <td x-show="!hiddenColumns.includes('col-code')"></td>
+            <td x-show="!hiddenColumns.includes('col-population')" x-text="formatNumber(aggregates.population)"></td>
+            <td x-show="!hiddenColumns.includes('col-area')" x-text="formatNumber(aggregates.area)"></td>
+            <td x-show="!hiddenColumns.includes('col-currencies')"></td>
+            <td x-show="!hiddenColumns.includes('col-language')"></td>
+            <td x-show="!hiddenColumns.includes('col-gdp')"></td>
+            <td x-show="!hiddenColumns.includes('col-gdp-total')" x-text="formatCompact(aggregates.gdpTotal)"></td>
+            <td x-show="!hiddenColumns.includes('col-gini')"></td>
+            <td x-show="!hiddenColumns.includes('col-internet')"></td>
+            <td x-show="!hiddenColumns.includes('col-urban')"></td>
+            <td x-show="!hiddenColumns.includes('col-status')"></td>
+            <td x-show="!hiddenColumns.includes('col-flag')"></td>
+          </tr>
+        </tfoot>
       </table>
     </div>`;
 }

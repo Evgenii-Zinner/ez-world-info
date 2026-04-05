@@ -16,3 +16,6 @@
 ## 2026-03-08 -
 **Learning:** Shareable state implementation in Alpine.js components requires serializing state (active filters, search queries) to URL parameters and parsing them inside the component's `init()` method using `new URLSearchParams(window.location.search)`.
 **Action:** When adding functional enhancements that require preserving user views, utilize URL query parameters to ensure the state can be shared and accurately hydrated on reload.
+## 2024-05-24 -
+**Learning:** In Alpine.js, evaluating expensive operations (like iterating over rows to calculate totals) multiple times in the template can cause performance overhead because getters run repeatedly on render cycles.
+**Action:** Use a caching variable to store the result of the expensive operation (e.g., `_aggregatesCache`) and clear the cache when the underlying data dependencies change (e.g., inside the `filteredRows` getter) to ensure the operation runs efficiently only once per state change.
