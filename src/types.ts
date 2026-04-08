@@ -16,13 +16,29 @@ export type RawCountry = {
   unMember?: boolean;
 };
 
+/**
+ * Represents a single data point from the World Bank API.
+ * The World Bank API returns indicators (like GDP) across multiple years.
+ */
 export type RawGdpItem = {
   country?: { id?: string; value?: string };
+  /** The 3-letter ISO code (e.g., "USA") */
   countryiso3code?: string;
+  /** The actual indicator value (e.g., GDP amount) */
   value?: number;
+  /** The year the data point corresponds to (e.g., "2022") */
   date?: string;
 };
 
+/**
+ * The peculiar tuple structure returned by the World Bank API.
+ *
+ * @example
+ * [
+ *   { page: 1, pages: 1, per_page: 20000, total: 266 }, // Index 0: Pagination Metadata
+ *   [ { countryiso3code: "USA", value: 76329, date: "2022" }, ... ] // Index 1: The actual data array
+ * ]
+ */
 export type RawGdpData = [
   unknown,
   Array<RawGdpItem>
