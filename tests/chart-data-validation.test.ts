@@ -22,11 +22,15 @@ describe("GET /chart-data Validation", () => {
     const longParam = Array(200).fill("USA").join(",");
     const res = await app.request(`/chart-data?selected=${longParam}`);
 
-    // Ideally this should fail with 413 or 400, but currently it returns 200
-    // We expect this to fail AFTER our fix
-    // For now, let's verify current behavior is 200 (vulnerable)
-    // Or just write the test expecting the fix, and watch it fail.
-    // Expect 414 (URI Too Long) or 400 (Bad Request)
+    expect([400, 413, 414]).toContain(res.status);
+  });
+
+  it("should reject multiple excessively long query strings (DoS bypass prevention)", async () => {
+    // Each parameter is under 500 characters, but combined they exceed the limit
+    const param1 = Array(120).fill("USA").join(","); // ~479 chars
+    const param2 = Array(120).fill("FRA").join(","); // ~479 chars
+    const res = await app.request(`/chart-data?selected=${param1}&selected=${param2}`);
+
     expect([400, 413, 414]).toContain(res.status);
   });
 

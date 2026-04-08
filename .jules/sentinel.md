@@ -30,3 +30,7 @@
 **Vulnerability:** The application was missing Cross-Origin Opener Policy (COOP) and Cross-Origin Resource Policy (CORP) headers.
 **Learning:** Even with CSP and basic headers, modern web applications can be vulnerable to cross-origin information leaks (like Spectre or Meltdown). Explicitly isolating the origin restricts other domains from opening the application in a popup or embedding its resources.
 **Prevention:** Always include `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Resource-Policy: same-origin` headers to provide defense-in-depth against cross-origin attacks.
+## 2025-02-28 - [DoS Bypass via Multiple Query Parameters]
+**Vulnerability:** The `/chart-data` endpoint validated the length of the `selected` query parameter using `c.req.query('selected')`, which only returns the first instance. An attacker could bypass the 500-character length limit by sending multiple `selected` parameters (e.g., `?selected=A&selected=B...`), leading to potential memory exhaustion or CPU DoS during downstream parsing.
+**Learning:** When validating array-like query parameters in Hono, `c.req.query` only provides the first value. To properly validate the total size of user input, developers must use `c.req.queries` to inspect all instances of the parameter.
+**Prevention:** Always use `c.req.queries('key')` when calculating total input length or item counts for array parameters to prevent bypass attacks.
