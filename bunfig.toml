@@ -1,0 +1,4 @@
+[test]
+# Ignore e2e tests when running bun test
+coveragePattern = ["src/**/*.ts"]
+coverageIgnorePattern = ["e2e/**/*.ts"]
