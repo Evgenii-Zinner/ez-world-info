@@ -13,3 +13,6 @@
 ## 2024-05-19 -
 **Learning:** The application architecture shifted from Server-Side Rendered (SSR) HTML partials (like the removed `htmx` endpoints) to Client-Side JSON Hydration. Large sets of tabular data are now sent to Alpine.js via a `<script type="application/json">` block (JSON Island Pattern) rather than massive HTML payloads, massively improving layout rendering performance.
 **Action:** Removed outdated references to `htmx` in `README.md` and added an explicit architectural warning explaining the shift to the JSON Island pattern.
+## 2026-04-08 -
+**Learning:** The World Bank API returns an unusual tuple structure where index 0 contains pagination metadata and index 1 contains the actual array of data points. Furthermore, the API returns these data points sorted by descending date, meaning the first entry encountered for a country is its most recent metric.
+**Action:** Documented this API response structure via JSDoc for `RawGdpData` in `src/types.ts` and `parseGdpData` in `src/services/api.ts`.

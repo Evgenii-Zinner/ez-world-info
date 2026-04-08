@@ -154,6 +154,22 @@ export function parseCountries(parsed: RawCountry[]): CountryEntry[] {
 /**
  * Parses GDP data from the World Bank API format.
  *
+ * Note: The World Bank API returns a tuple where index 0 is pagination metadata,
+ * and index 1 is the actual array of data points. Crucially, the API returns data
+ * sorted by descending date. Therefore, the first entry we encounter for a given
+ * country is guaranteed to be its most recent data point.
+ *
+ * @example
+ * // Given this World Bank response:
+ * const raw = [
+ *   { page: 1 },
+ *   [
+ *     { countryiso3code: "USA", value: 76000, date: "2022" },
+ *     { countryiso3code: "USA", value: 70000, date: "2021" }
+ *   ]
+ * ];
+ * parseGdpData(raw); // Returns Map { "USA" => { value: 76000, year: "2022" } }
+ *
  * @param parsed - Raw JSON from World Bank API.
  *                 Format is `[metadata, data[]]`.
  * @param allowedCodes - Optional Set of ISO3 codes to keep.
