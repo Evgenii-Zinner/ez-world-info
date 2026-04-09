@@ -72,20 +72,36 @@ export function renderTable({
             copiedCode: null,
             linkCopied: false,
 
+            _prepareRows(rows) {
+              return rows.map(r => ({
+                ...r,
+                _lowerName: r.name ? r.name.toLowerCase() : null,
+                _lowerCode: r.code ? r.code.toLowerCase() : null,
+                population: r.population !== undefined ? r.population : null,
+                area: r.area !== undefined ? r.area : null,
+                gdpPerCapita: r.gdpPerCapita !== undefined ? r.gdpPerCapita : null,
+                gdpTotal: r.gdpTotal !== undefined ? r.gdpTotal : null,
+                gini: r.gini !== undefined ? r.gini : null,
+                internetUsers: r.internetUsers !== undefined ? r.internetUsers : null,
+                urbanPopulation: r.urbanPopulation !== undefined ? r.urbanPopulation : null,
+                currencyRate: r.currencyRate !== undefined ? r.currencyRate : null,
+              }));
+            },
+
             async init() {
               // Initialize data safely
               if (typeof initialDataOrId === 'string') {
                 const el = document.getElementById(initialDataOrId);
                 if (el) {
                   try {
-                    this.allRows = JSON.parse(el.textContent);
+                    this.allRows = this._prepareRows(JSON.parse(el.textContent));
                   } catch(e) {
                     console.error('Failed to parse initial data', e);
                   }
                 }
               } else {
                  // Legacy or direct array support
-                 this.allRows = initialDataOrId || [];
+                 this.allRows = this._prepareRows(initialDataOrId || []);
               }
 
               // Check URL for filter param
@@ -108,7 +124,7 @@ export function renderTable({
               const cached = sessionStorage.getItem('countriesData');
               if (cached) {
                 try {
-                  this.allRows = JSON.parse(cached);
+                  this.allRows = this._prepareRows(JSON.parse(cached));
                   this.isLoading = false;
                   return;
                 } catch (e) {
@@ -122,7 +138,7 @@ export function renderTable({
                 const res = await fetch('/api/countriesData');
                 if (!res.ok) throw new Error('Failed to load data');
                 const data = await res.json();
-                this.allRows = data;
+                this.allRows = this._prepareRows(data);
                 try {
                     sessionStorage.setItem('countriesData', JSON.stringify(data));
                 } catch (e) {
@@ -161,8 +177,8 @@ export function renderTable({
               if (this.search) {
                 const lowerSearch = this.search.toLowerCase();
                 result = result.filter(r => 
-                  (r.name && r.name.toLowerCase().includes(lowerSearch)) || 
-                  (r.code && r.code.toLowerCase().includes(lowerSearch))
+                  (r._lowerName && r._lowerName.includes(lowerSearch)) ||
+                  (r._lowerCode && r._lowerCode.includes(lowerSearch))
                 );
               }
 
@@ -175,16 +191,19 @@ export function renderTable({
               // 3. Sorting
               if (this.sortBy) {
                 result = result.sort((a, b) => {
-                  let valA = a[this.sortBy];
-                  let valB = b[this.sortBy];
+                  let valA = this.sortBy === 'name' ? a._lowerName : (this.sortBy === 'code' ? a._lowerCode : a[this.sortBy]);
+                  let valB = this.sortBy === 'name' ? b._lowerName : (this.sortBy === 'code' ? b._lowerCode : b[this.sortBy]);
 
                   // Handle nulls always at bottom
                   if (valA === null || valA === undefined) return 1;
                   if (valB === null || valB === undefined) return -1;
 
                   if (typeof valA === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
+                    // Strings are already lowercase if sortBy is 'name' or 'code', but for other strings we lowercase them
+                    if (this.sortBy !== 'name' && this.sortBy !== 'code') {
+                      valA = valA.toLowerCase();
+                      valB = valB.toLowerCase();
+                    }
                   }
 
                   if (valA < valB) return this.sortOrder === 'asc' ? -1 : 1;
