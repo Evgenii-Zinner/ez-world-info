@@ -6,8 +6,8 @@ export const ChartView = () => {
   <div class="chart-dashboard">
     <div class="chart-controls-panel">
       <div class="control-group">
-        <label>Visual Style:</label>
-        <div class="style-buttons">
+        <label id="visual-style-label">Visual Style:</label>
+        <div class="style-buttons" role="group" aria-labelledby="visual-style-label">
           <button class="style-btn active" aria-pressed="true" data-style="bar" onclick="switchChartStyle('bar')">📊 Bar</button>
           <button class="style-btn" aria-pressed="false" data-style="rose" onclick="switchChartStyle('rose')">🌹 Rose</button>
           <button class="style-btn" aria-pressed="false" data-style="bubble" onclick="switchChartStyle('bubble')">🫧 Bubble</button>
@@ -16,7 +16,7 @@ export const ChartView = () => {
       </div>
 
       <div class="control-group">
-        <label>Metric:</label>
+        <label for="metric-selector">Metric:</label>
         <select id="metric-selector" class="metric-select" onchange="switchMetric(this.value)">
           <option value="gdpPerCapita">GDP per Capita</option>
           <option value="population">Population</option>
@@ -26,7 +26,7 @@ export const ChartView = () => {
         </select>
       </div>
 
-      <div class="selection-notice" id="selection-status">
+      <div class="selection-notice" id="selection-status" aria-live="polite">
         Loading data...
       </div>
     </div>
