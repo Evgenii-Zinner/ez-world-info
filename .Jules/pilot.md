@@ -9,3 +9,7 @@
 ## $(date +%Y-%m-%d)
 **Learning:** Testing the "Copy Link" functionality in Playwright requires granting explicit permissions to the clipboard for the specific page origin: `await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: page.url() });`. Additionally, reading from the clipboard inside the test is achieved via `await page.evaluate(() => navigator.clipboard.readText());`.
 **Action:** Created `e2e/share-link.spec.ts` testing the critical flow of filtering the table, copying the share link with the current state (search term, selected country, and active filter), and verifying that the application correctly restores this state upon direct navigation to the shared URL.
+
+## 2026-03-29
+**Learning:** When asserting the presence or counts of elements in an empty table state (e.g., after a search with no results), be aware that this specific application maintains a visually hidden "No countries found matching your criteria" `<tr>` element. You must use `.filter({ hasNotText: /No countries found/i })` on row locators to avoid false positive counts. Additionally, when locating buttons with icons (e.g. "❌ Clear"), Playwright matches against the `aria-label` ("Clear selection") rather than the visible text if an aria-label is provided.
+**Action:** Created `e2e/search-and-selection.spec.ts` testing search empty states, counting visible rows correctly, and utilizing accessibility queries to test the bulk Select All and Clear Selection workflows.
